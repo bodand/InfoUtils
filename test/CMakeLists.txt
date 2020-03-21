@@ -34,7 +34,7 @@ enable_testing()
 
 set(INFO_UTILS_TEST_HEADERS
     Test_Tests.hpp
-   # Test_Lambda.hpp
+    Test_Lambda.hpp
     )
 
 foreach (case IN LISTS INFO_UTILS_TEST_HEADERS)
