@@ -35,6 +35,7 @@ enable_testing()
 set(INFO_UTILS_TEST_HEADERS
     Test_Tests.hpp
     Test_Lambda.hpp
+    Test_Nullable.hpp
     )
 
 foreach (case IN LISTS INFO_UTILS_TEST_HEADERS)
@@ -60,7 +61,7 @@ target_link_libraries(iu_test
                       )
 
 if ((CMAKE_CXX_COMPILER_ID STREQUAL "GCC")
-    OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+     OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
     target_compile_options(iu_test BEFORE PUBLIC -pthread)
     target_link_options(iu_test PUBLIC -lpthread)
 endif ()
