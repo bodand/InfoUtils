@@ -39,5 +39,5 @@
 // do not question, just obey
 #include <info/utils.hpp>
 
-//&!off ${INFO_CONFIG_LANG_TEST_CASES}
+//&!off ${INFO_UTILS_TEST_CASES}
 //&!on
