@@ -1,24 +1,22 @@
-// ********************************************************************************
-// The following file is copyrighted under the BSD 3-Clause license.
-// ********************************************************************************
-//
+//// BSD 3-Clause License
+// 
 // Copyright (c) 2020, bodand
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-//
+// 
 // 1. Redistributions of source code must retain the above copyright notice, this
-//   list of conditions and the following disclaimer.
-//
+//    list of conditions and the following disclaimer.
+// 
 // 2. Redistributions in binary form must reproduce the above copyright notice,
-//   this list of conditions and the following disclaimer in the documentation
-//   and/or other materials provided with the distribution.
-//
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+// 
 // 3. Neither the name of the copyright holder nor the names of its
-//   contributors may be used to endorse or promote products derived from
-//   this software without specific prior written permission.
-//
+//    contributors may be used to endorse or promote products derived from
+//    this software without specific prior written permission.
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -29,10 +27,9 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// ********************************************************************************
 
 //
-// Created by bodand on 2019-12-22.
+// Created by tudom on 2020-03-21.
 //
 
 #pragma clang diagnostic push
@@ -41,14 +38,48 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 #pragma once
 
+#include <vector>
+
 #include <boost/test/included/unit_test.hpp>
+#include "assertion.hpp" // custom assertions
 
-BOOST_AUTO_TEST_SUITE(Trivial)
+BOOST_AUTO_TEST_SUITE(Info)
+  BOOST_AUTO_TEST_SUITE(Utils)
+    using namespace info;
 
-  BOOST_AUTO_TEST_CASE(FrameworkTest) {
-      BOOST_CHECK_MESSAGE(true, "Your Boost is properly installed");
-  }
+    BOOST_AUTO_TEST_CASE(lambda_is_recursively_callable) {
+        int call_count = 0;
+        auto sut = lambda([&call_count](auto self, int call_times) -> void {
+            ++call_count;
 
+            if (call_times != 0)
+                self(call_times - 1);
+        });
+
+        sut(4);
+
+        INFO_TEST_ASSERT(call_count, Is().EqualTo(5));
+    }
+
+    BOOST_AUTO_TEST_CASE(lambda_retains_return_type_and_value) {
+        auto sut = lambda([](auto self, auto n) {
+            if (n == 0)
+                return std::vector<decltype(n)>{n};
+
+            auto ret = self(n - 1);
+            ret.push_back(n);
+            return ret;
+        });
+        int n = 6;
+
+        auto got = sut(n);
+
+        INFO_TEST_ASSERT(got, Is().EqualToContainer(std::vector<int>{
+            0, 1, 2, 3, 4, 5, 6
+        }));
+    }
+
+  BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
 
 #pragma clang diagnostic pop

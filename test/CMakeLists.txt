@@ -59,12 +59,12 @@ target_link_libraries(iu_test
                       snowhouse
                       )
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL GCC
-    OR CMAKE_CXX_COMPILER_ID STREQUAL Clang)
+if ((CMAKE_CXX_COMPILER_ID STREQUAL "GCC")
+    OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
     target_compile_options(iu_test BEFORE PUBLIC -pthread)
     target_link_options(iu_test PUBLIC -lpthread)
 endif ()
 
-add_test(InfoConfigLanguage
+add_test(InfoUtilsTests
          "iu_test -v"
          )
