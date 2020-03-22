@@ -2,7 +2,7 @@
 Utilities used by Info* projects.
 
 A set of utility function and classes used by Info* projects. First created when InfoConfig was in need of these utilities, and
-bodand grew tired of ~~reimplementing them~~ copy-pasting from older projects. More utilities are to be awaited as every Info* project's 
+bodand grew tired of ~~reimplementing them~~ copy-pasting from older projects. More utilities are awaited as every Info* project's 
 utility directory gets lifted into this repo. 
 
 ## Documentation 
