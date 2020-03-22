@@ -65,7 +65,7 @@ namespace info {
        * \param fun The lambda of unspecified type. This is the lambda upon
        *             which the power of recursion is to be bestowed
        */
-      explicit lambda(F fun) noexcept
+      lambda(F fun) noexcept
              : _fun{fun} {};
 
   private:

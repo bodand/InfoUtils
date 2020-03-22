@@ -43,15 +43,11 @@ project(InfoUtils
 set(INFO_PROJECT_NAME Utils)
 set(INFO_PROJECT_NAMESPACE info)
 
-## Debug-flags for libstdc++
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
-
-## CMake modules
-# Check for required features and
-#  applicable warnings
-include(FeatureTests)
-# Dependencies
-include(Dependencies)
+## Debug-flags
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+    OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG --coverage")
+endif ()
 
 ## Require C++17+
 if ((NOT CMAKE_CXX_STANDARD)
@@ -67,6 +63,19 @@ set(${INFO_PROJECT_NAME}_TARGET iu)
 
 ## Initialize target
 add_library(${${INFO_PROJECT_NAME}_TARGET} INTERFACE)
+add_library(info::utils ALIAS ${${INFO_PROJECT_NAME}_TARGET})
+
+# Check for required features and
+#  applicable warnings
+include(FeatureTests)
+
+# Add warnings
+target_compile_options(${${INFO_PROJECT_NAME}_TARGET}
+                       INTERFACE
+                       ${${INFO_PROJECT_NAME}_WARNINGS})
+
+# Dependencies
+include(Dependencies)
 
 ## Get dependencies
 # Boost headers -> rely on system to have it
@@ -82,6 +91,7 @@ target_include_directories(${${INFO_PROJECT_NAME}_TARGET}
                            $<INSTALL_INTERFACE:include>
                            $<BUILD_INTERFACE:${${INFO_PROJECT_NAME}_INCLUDE_DIR}>
                            )
+
 
 ## Optionally enable tests
 if (INFO_UTILS_BUILD_TESTS)

@@ -9,7 +9,6 @@
 #pragma once
 
 #include "assertion.hpp"
-#include <boost/test/included/unit_test.hpp>
 #include <info/nullable.hpp>
 
 BOOST_AUTO_TEST_SUITE(Info)
@@ -49,6 +48,48 @@ BOOST_AUTO_TEST_SUITE(Info)
 
         INFO_TEST_ASSERT(null, Is().False());
         INFO_TEST_ASSERT(notnull, Is().True());
+    }
+
+    BOOST_AUTO_TEST_CASE(nullable_allows_pointer_access_to_structure) {
+        struct Foo {
+            int a;
+        } foo{5};
+        info::nullable<Foo*> ptr{&foo};
+
+        INFO_TEST_ASSERT(ptr, Is().Not().Null());
+        INFO_TEST_ASSERT(ptr->a, Is().EqualTo(5));
+    }
+
+    BOOST_AUTO_TEST_CASE(nullable_seemlessly_works_with_pointer_parameters) {
+        auto f = [](info::nullable<int*> ptr) {
+          if (ptr)
+              return *ptr;
+          return 0;
+        };
+        int i = 5;
+
+        INFO_TEST_ASSERT(f(&i), Is().EqualTo(5));
+        INFO_TEST_ASSERT(f(nullptr), Is().EqualTo(0));
+    }
+
+    BOOST_AUTO_TEST_CASE(nullable_works_with_inheritence) {
+        struct Foo {
+            virtual int make() = 0;
+            virtual ~Foo() = default;
+        };
+        struct Bar : Foo {
+        private:
+            int make() override { return 1; }
+        };
+        auto f = [](info::nullable<Foo*> ptr) {
+          if (ptr)
+              return ptr->make();
+          return 0;
+        };
+        Bar bar;
+
+        INFO_TEST_ASSERT(f(&bar), Is().EqualTo(1));
+        INFO_TEST_ASSERT(f(nullptr), Is().EqualTo(0));
     }
 
   BOOST_AUTO_TEST_SUITE_END()

@@ -40,7 +40,6 @@
 
 #include <vector>
 
-#include <boost/test/included/unit_test.hpp>
 #include "assertion.hpp" // custom assertions
 
 BOOST_AUTO_TEST_SUITE(Info)

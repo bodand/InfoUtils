@@ -34,7 +34,19 @@
 //
 
 #pragma once
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wall"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#elif defined(_MSC_VER)
+#pragma warning(push, 1)
+#pragma warning(disable: 4866 5045 4548)
+#endif
 
+#include <boost/test/included/unit_test.hpp>
 #include <snowhouse/snowhouse.h>
 
 using namespace snowhouse;
@@ -47,3 +59,11 @@ try {\
     BOOST_ERROR("Assertion failed: '" #A " " #T "' with message: ");\
     std::cout << e.what();\
 }
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
+#endif

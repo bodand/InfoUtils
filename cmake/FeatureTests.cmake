@@ -1,22 +1,22 @@
 ## BSD 3-Clause License
-# 
+#
 # Copyright (c) 2020, bodand
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-# 
+#
 # 1. Redistributions of source code must retain the above copyright notice, this
 #    list of conditions and the following disclaimer.
-# 
+#
 # 2. Redistributions in binary form must reproduce the above copyright notice,
 #    this list of conditions and the following disclaimer in the documentation
 #    and/or other materials provided with the distribution.
-# 
+#
 # 3. Neither the name of the copyright holder nor the names of its
 #    contributors may be used to endorse or promote products derived from
 #    this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -46,10 +46,11 @@ set(${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS
     move newline-eof over-aligned redundant-parens reorder reserved-id-macro sign-conversion
     signed-enum-bitfield sometimes-uninitialized tautological-overlap-compare thread-safety
     undefined-internal-type undefined-reinterpret-cast unneeded-internal-declaration
-    unreachable-code-aggressive unreachable-code-loop-increment
-    unused-const-variable unused-exception-parameter unused-parameter unused-template unused-variable
+    unreachable-code-aggressive unreachable-code-loop-increment unused-const-variable
+    unused-exception-parameter unused-parameter unused-template unused-variable nullability-completeness
     pedantic # -Wpedantic != -pedantic, right?
-    no-unknown-pragmas no-unused-macros
+    no-unknown-pragmas no-unused-macros no-nullability-extension
+    no-c++20-extensions # we make sure not to use it if we can't
     # Additions from GCC
     suggest-attribute=pure suggest-attribute=const suggest-attribute=cold suggest-final-types
     suggest-final-methods duplicated-branches trampolines placement-new=2 redundant-decls logical-op
@@ -72,3 +73,10 @@ foreach (WARN_I IN LISTS ${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS)
         list(APPEND ${INFO_PROJECT_NAME}_WARNINGS -W${WARN_I})
     endif ()
 endforeach ()
+
+if (MSVC)
+    set(${INFO_PROJECT_NAME}_WARNINGS ${${INFO_PROJECT_NAME}_WARNINGS}
+        /wd4068 # Unknown pragma warnings
+        /wd4514 /wd4710 # These warn for the Windows stdlib
+        )
+endif ()

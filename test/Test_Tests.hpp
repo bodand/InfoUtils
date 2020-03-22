@@ -41,8 +41,9 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 #pragma once
 
-#include <boost/test/included/unit_test.hpp>
+#include "assertion.hpp"
 
+//&!off
 BOOST_AUTO_TEST_SUITE(Info)
   BOOST_AUTO_TEST_SUITE(Utils)
     BOOST_AUTO_TEST_SUITE(Trivial)
@@ -54,5 +55,6 @@ BOOST_AUTO_TEST_SUITE(Info)
     BOOST_AUTO_TEST_SUITE_END()
   BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
+//&!on
 
 #pragma clang diagnostic pop
