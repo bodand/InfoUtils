@@ -38,9 +38,7 @@
 // Lambda utility
 #include "lambda.hpp"
 
-// Constraint utilities
-#include "require.hpp"
-
 // Pointer utilities
 #include "const_ptr.hpp"
 #include "nullable.hpp"
+#include "nonnull.hpp"

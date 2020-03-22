@@ -38,7 +38,6 @@
 #include <type_traits>
 
 // project
-#include "require.hpp"
 #include "_macros.hpp"
 
 #ifdef __clang__
