@@ -92,6 +92,30 @@ BOOST_AUTO_TEST_SUITE(Info)
         INFO_TEST_ASSERT(f(nullptr), Is().EqualTo(0));
     }
 
+    BOOST_AUTO_TEST_CASE(hash_works_with_null_nullable) {
+        std::hash<info::nullable<int*>> h{};
+        info::nullable<int*> null{nullptr}, null2{nullptr};
+
+        INFO_TEST_ASSERT(h(null), Is().EqualTo(h(null2)).And().EqualTo(h(nullptr)));
+    }
+
+    BOOST_AUTO_TEST_CASE(hash_works_with_valueful_nullable) {
+        std::hash<info::nullable<int*>> h{};
+        int a = 4, b = 5;
+        info::nullable<int*> ap{&a}, ap2{&a}, bp{&b};
+
+        INFO_TEST_ASSERT(h(ap), Is().Not().EqualTo(h(bp)));
+        INFO_TEST_ASSERT(h(ap), Is().EqualTo(h(ap2)));
+    }
+
+    BOOST_AUTO_TEST_CASE(hash_is_consistent_with_valueful_nullable) {
+        std::hash<info::nullable<int*>> h{};
+        int a = 42;
+        info::nullable ap{&a};
+
+        INFO_TEST_ASSERT(h(ap), Is().EqualTo(h(ap)));
+    }
+
   BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
 

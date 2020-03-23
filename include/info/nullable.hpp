@@ -36,6 +36,7 @@
 
 // stdlib
 #include <type_traits>
+#include <functional>
 
 // project
 #include "_macros.hpp"
@@ -139,6 +140,17 @@ namespace info {
   bool operator!=(nullable<T*>, U) noexcept;
   template<class U, class T>
   bool operator!=(U, nullable<T*>) noexcept;
+}
+
+namespace std {
+  template<class T>
+  struct hash<info::nullable<T>> {
+      size_t operator()(const info::nullable<T>& ptr) const noexcept {
+          if (ptr)
+              return hash<T>{}(ptr.get());
+          return hash<nullptr_t>{}(nullptr);
+      }
+  };
 }
 
 template<class T>
