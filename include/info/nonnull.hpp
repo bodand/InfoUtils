@@ -96,6 +96,17 @@ namespace info {
       nonnull(pointer_type) noexcept INFO_GCC_NONNULL;
 
       /**
+       * \brief Compile-time disallows the creation of
+       * nonnull objects with the nullptr constant.
+       */
+      nonnull(std::nullptr_t) = delete;
+      /**
+       * \brief Compile-time disallows the assigment of
+       * nullptr to nonnull objects.
+       */
+      nonnull& operator=(std::nullptr_t) = delete;
+
+      /**
        * \brief Constructor. Creates a nullable pointer from any
        * smart pointer.
        *
