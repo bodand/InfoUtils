@@ -42,3 +42,6 @@
 #include "const_ptr.hpp"
 #include "nullable.hpp"
 #include "nonnull.hpp"
+
+// Exception utility
+#include "expected.hpp"
