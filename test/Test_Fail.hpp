@@ -29,22 +29,41 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //
-// Created by bodand on 2020-03-21.
+// Created by bodand on 2020-04-16.
 //
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wused-but-marked-unused"
+#pragma ide diagnostic ignored "MemberFunctionCanBeStaticInspection"
+#pragma ide diagnostic ignored "cert-err58-cpp"
 #pragma once
-/// Aggregate header for all InfoUtils files
 
-// Lambda utility
-#include "lambda.hpp"
+#include "assertion.hpp"
 
-// Pointer utilities
-#include "const_ptr.hpp"
-#include "nullable.hpp"
-#include "nonnull.hpp"
+BOOST_AUTO_TEST_SUITE(Info)
+  BOOST_AUTO_TEST_SUITE(Utils)
+    using namespace info;
 
-// Exception utility
-#include "expected.hpp"
+    struct foo {
+        template<class T = void>
+        int f() {
+            static_assert(fail_v<T>, "Usage is forbidden");
+            return 1;
+        }
 
-// Compile-time utilities
-#include "fail.hpp"
+        int b() {
+            return 0;
+        }
+    };
+
+    BOOST_AUTO_TEST_CASE(fail_doesnt_cause_compilation_failure_if_enclosing_template_is_not_instantiated) {
+        foo f;
+
+        INFO_TEST_ASSERT(f.b(), Equals(0));
+        BOOST_CHECK_MESSAGE(true, "Compilation was not aborted");
+    }
+
+  BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END()
+
+#pragma clang diagnostic pop

@@ -38,6 +38,7 @@ set(INFO_UTILS_TEST_HEADERS
     Test_Nullable.hpp
     Test_Nonnull.hpp
     Test_Expected.hpp
+    Test_Fail.hpp
     )
 
 foreach (case IN LISTS INFO_UTILS_TEST_HEADERS)

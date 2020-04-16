@@ -19,7 +19,10 @@ Since version `1.0`:
 
 Since version `1.1`:
  - `info::expected<T, E>`: A exception handling type which says a `T` is expected, and if it cannot be created it is described why with an `E` object.
- 
+
+Since version `1.2`:
+ - `info::fail<T>`: A type which returns false with the `value` member. Used to conditionally fail compilation.
+
 ## Macros
 Some macros are implemented by InfoUtils as further utilities to accompany the
 class-types described above. These are used internally by InfoUtils as well.
