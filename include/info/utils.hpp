@@ -46,5 +46,9 @@
 // Exception utility
 #include "expected.hpp"
 
+// A Stateful Function implementation
+// Dear Functional People, I don't care about your purity.
+#include "functor.hpp"
+
 // Compile-time utilities
 #include "fail.hpp"

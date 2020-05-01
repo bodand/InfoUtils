@@ -1,22 +1,22 @@
 //// BSD 3-Clause License
-//
+// 
 // Copyright (c) 2020, bodand
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-//
+// 
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-//
+// 
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-//
+// 
 // 3. Neither the name of the copyright holder nor the names of its
 //    contributors may be used to endorse or promote products derived from
 //    this software without specific prior written permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -29,42 +29,53 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //
-// Created by bodand on 2020-03-21.
+// Created by bodand on 2020-05-01.
 //
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wused-but-marked-unused"
+#pragma ide diagnostic ignored "MemberFunctionCanBeStaticInspection"
+#pragma ide diagnostic ignored "cert-err58-cpp"
 #pragma once
 
-#if __has_cpp_attribute(nodiscard) >= 201907L
-#  define INFO_NODISCARD(MSG) [[nodiscard(MSG)]]
-#  define INFO_NODISCARD_JUST [[nodiscard]]
-#elif __has_cpp_attribute(nodiscard) >= 201603L
-#  define INFO_NODISCARD(...) [[nodiscard]]
-#  define INFO_NODISCARD_JUST [[nodiscard]]
-#else
-#  define INFO_NODISCARD(...)
-#  define INFO_NODISCARD_JUST
-#endif
+#include "assertion.hpp"
+#include <info/functor.hpp>
 
-#if __has_cpp_attribute(likely) >= 201803L
-#  define INFO_LIKELY [[likely]]
-#else
-#  define INFO_LIKELY
-#endif
+BOOST_AUTO_TEST_SUITE(Info)
+  BOOST_AUTO_TEST_SUITE(Utils)
+    using namespace info;
 
-#if __has_cpp_attribute(unlikely) >= 201803L
-#  define INFO_UNLIKELY [[unlikely]]
-#else
-#  define INFO_UNLIKELY
-#endif
+    struct foo_ {
+        int operator()(int, char) {
+            return ++i;
+        }
 
-#ifdef __cpp_constinit
-#  define INFO_CONSTINIT constinit
-#else
-#  define INFO_CONSTINIT constexpr
-#endif
+        int i{0};
+    };
 
-#ifdef __cpp_consteval
-#  define INFO_CONSTEVAL consteval
-#else
-#  define INFO_CONSTEVAL constexpr
-#endif
+    int plain_fun(int) {
+        return 1;
+    }
+
+    BOOST_AUTO_TEST_CASE(s_functor_is_callable) {
+        functor<int(int, char)> fun{foo_{}};
+
+        BOOST_CHECK_EQUAL(fun(1, 'a'), 1);
+    }
+
+    BOOST_AUTO_TEST_CASE(s_functor_is_callable_with_plain_function) {
+        functor<int(int)> fun{plain_fun};
+
+        BOOST_CHECK_EQUAL(fun(1), 1);
+    }
+
+    BOOST_AUTO_TEST_CASE(s_functor_keeps_functors_state) {
+        functor<int(int, char)> fun{foo_{}};
+
+        BOOST_CHECK_EQUAL(fun(1, '?'), 1);
+        BOOST_CHECK_EQUAL(fun(1, '?'), 2);
+        BOOST_CHECK_EQUAL(fun(1, '?'), 3);
+    }
+
+  BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END()

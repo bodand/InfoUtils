@@ -42,7 +42,7 @@ set(${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS
     all extra sign-compare switch-enum uninitialized unused cast-qual cast-align
     abstract-vbase-init array-bounds-pointer-arithmetic assign-enum conditional-uninitialized
     consumed deprecated-implementations documentation-deprecated-sync non-virtual-dtor
-    header-hygiene infinite-recursion keyword-macro loop-analysis missing-braces
+    header-hygiene infinite-recursion keyword-macro loop-analysis
     move newline-eof over-aligned redundant-parens reorder reserved-id-macro sign-conversion
     signed-enum-bitfield sometimes-uninitialized tautological-overlap-compare thread-safety
     undefined-internal-type undefined-reinterpret-cast unneeded-internal-declaration

@@ -12,27 +12,23 @@ however, the code itself is well documented, regarding the API at least.
 ## Utilities
 Currently, this is the list of utilities supported in InfoUtils.
 
-Since version `1.0`:
  - `info::nonnull<T*>`: A pointer wrapper which refuses null
  - `info::nullable<T*>`: Explicitly specifies a pointer accepts null
  - `info::lambda<T>`: A lambda(tbh functor, really) wrapper to allow the creation of recursive lambdas
-
-Since version `1.1`:
  - `info::expected<T, E>`: A exception handling type which says a `T` is expected, and if it cannot be created it is described why with an `E` object.
-
-Since version `1.2`:
  - `info::fail<T>`: A type which returns false with the `value` member. Used to conditionally fail compilation.
+ - `info::functor<R(ArgsT...)>`: A function type which guarantees no reconstruction of the underlying functor.
 
 ## Macros
 Some macros are implemented by InfoUtils as further utilities to accompany the
 class-types described above. These are used internally by InfoUtils as well.
 
-Since version `1.0`:
  - `INFO_NODISCARD(MSG)`: Applies the C++20 `[[nodiscard(MSG)]]` attribute if supported, or the C++17 `[[nodiscard]]` attribute if supported.
-
-Since version `1.1`:
+ - `INFO_NODISCARD_JUST`: Applies the C++17 `[[nodiscard]]` attribute if supported.
  - `INFO_LIKELY`: Applies the C++ `[[likely]]` attribute if supported.
  - `INFO_UNLIKELY`: Applies the C++ `[[unlikely]]` attribute if supported.
+ - `INFO_CONSTEVAL`: Expands to `consteval` if supported, otherwise `constexpr`
+ - `INFO_CONSTINIT`: Expands to `constinit` if supported, otherwise `constexpr`
 
 ## License
 
