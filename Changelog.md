@@ -4,7 +4,13 @@ The followings list every change ever to happen to the codebase on a behavioral 
 Each version has their own subheader with sub-subheaders defining what's been added, changed, or removed. 
 Additionally, every version-level header may have a 'Developer notes' subheader defining notes
 by the developer publishing that version addressed to other developers (or their older selves),
-which are more implementation detail oriented.  
+which are more implementation detail oriented.
+Patch updates may not include the whole set of subheaders at the developer's discretion.  
+
+## VERSION 1.3.1 - Daedalus-2
+
+### Changed:
+ - There was a bug which caused Daedalus to fail compilation. Detected by the InfoGrammatik project.
 
 ## VERSION 1.3.0 - Daedalus
 
