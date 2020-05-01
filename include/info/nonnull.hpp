@@ -37,9 +37,7 @@
 // stdlib
 #include <type_traits>
 #include <functional>
-
-// dep: boost
-#include <boost/assert.hpp>
+#include <cassert>
 
 // project
 #include "_macros.hpp"
@@ -196,14 +194,14 @@ info::nonnull<T>::operator pointer_type() noexcept {
 template<class T>
 info::nonnull<T>::nonnull(pointer_type ptr) noexcept
        : _ptr{ptr} {
-    BOOST_ASSERT_MSG(_ptr != nullptr, "Pointer assigned to nonnull must not be nullptr.");
+    assert(_ptr != nullptr && "Pointer assigned to nonnull must not be nullptr.");
 }
 
 template<class T>
 template<template<class...> class SmartPointer>
 info::nonnull<T>::nonnull(SmartPointer<value_type> ptr) noexcept
        : _ptr{ptr.get()} {
-    BOOST_ASSERT_MSG(_ptr != nullptr, "Pointer assigned to nonnull must not be nullptr.");
+    assert(_ptr != nullptr && "Pointer assigned to nonnull must not be nullptr.");
 }
 
 template<class T>

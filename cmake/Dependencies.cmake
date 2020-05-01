@@ -45,6 +45,12 @@ if (INFO_UTILS_BUILD_TESTS)
             GIT_TAG v5.0.0
             )
 
+    FetchContent_Declare( # Pulls in Boost
+            Boost-CMake
+            GIT_REPOSITORY https://github.com/Orphis/boost-cmake.git
+            # USE MASTER
+            )
+
     message(STATUS "Registering test dependencies - done")
 endif ()
 
@@ -57,6 +63,7 @@ if (INFO_UTILS_BUILD_TESTS)
     message(STATUS "Getting test dependencies")
 
     FetchContent_MakeAvailable(snowhouse)
+    FetchContent_MakeAvailable(Boost-CMake)
 
     message(STATUS "Getting test dependencies - done")
 endif ()

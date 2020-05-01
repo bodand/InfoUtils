@@ -77,14 +77,6 @@ target_compile_options(${${INFO_PROJECT_NAME}_TARGET}
 # Dependencies
 include(Dependencies)
 
-## Get dependencies
-# Boost headers -> rely on system to have it
-find_package(Boost REQUIRED)
-target_link_libraries(${${INFO_PROJECT_NAME}_TARGET}
-                      INTERFACE
-                      Boost::boost # Boost
-                      )
-
 ## Set target properties
 target_include_directories(${${INFO_PROJECT_NAME}_TARGET}
                            INTERFACE
