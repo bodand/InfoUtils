@@ -1,22 +1,22 @@
 //// BSD 3-Clause License
-// 
+//
 // Copyright (c) 2020, bodand
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 //    contributors may be used to endorse or promote products derived from
 //    this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_SUITE(Info)
         expected<int, int> exp = unexpected{710};
 
         BOOST_CHECK_EXCEPTION(
-               *exp,
+               (void) *exp,
                int,
                [](int i) {
                  return i == 710;
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_SUITE(Info)
         expected<int, int> exp = unexpected{710};
 
         BOOST_CHECK_EXCEPTION(
-               exp.value(),
+               (void) exp.value(),
                int,
                [](int i) {
                  return i == 710;
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_SUITE(Info)
     BOOST_AUTO_TEST_CASE(expected_value_or_returns_fallback_value_if_failure) {
         expected<int, int> exp = unexpected{56};
 
-        BOOST_CHECK_NO_THROW(exp.value_or(323));
+        BOOST_CHECK_NO_THROW((void)exp.value_or(323));
         INFO_TEST_ASSERT(exp.value_or(930), Is().EqualTo(930));
     }
 
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_SUITE(Info)
         expected<int, int> exp = 4;
 
         auto ret = exp.apply([](int i) {
-            return i*i;
+          return i * i;
         });
 
         INFO_TEST_ASSERT(ret.value(), Is().EqualTo(16));
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_SUITE(Info)
 
         BOOST_REQUIRE_EQUAL(exp.error(), 4);
 
-        auto ret = exp.apply([](int i) { return i*i; });
+        auto ret = exp.apply([](int i) { return i * i; });
 
         INFO_TEST_ASSERT(ret.error(), Is().EqualTo(4));
     }
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_SUITE(Info)
     BOOST_AUTO_TEST_CASE(expected_call_operator_applies_supplied_function_if_success) {
         expected<int, int> exp = 4;
 
-        auto ret = exp([](int i) { return i*i; });
+        auto ret = exp([](int i) { return i * i; });
 
         INFO_TEST_ASSERT(ret.value(), Is().EqualTo(16));
     }
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_SUITE(Info)
 
         BOOST_REQUIRE_EQUAL(exp.error(), 4);
 
-        auto ret = exp([](int i) { return i*i; });
+        auto ret = exp([](int i) { return i * i; });
         INFO_TEST_ASSERT(ret.error(), Is().EqualTo(4));
     }
 
