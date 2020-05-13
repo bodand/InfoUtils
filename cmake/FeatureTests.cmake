@@ -54,11 +54,20 @@ set(${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS
     # Additions from GCC
     suggest-attribute=pure suggest-attribute=const suggest-attribute=cold suggest-final-types
     suggest-final-methods duplicated-branches trampolines placement-new=2 redundant-decls logical-op
-    # Additions from MSVC
-    4
     # User requested
     ${INFO_ADDITIONAL_WARNINGS} # todo document this
     )
+
+if (MSVC)
+    set(${INFO_PROJECT_NAME}_WARNINGS ${${INFO_PROJECT_NAME}_WARNINGS}
+        /wd4068 # Unknown pragma warnings
+        /wd4514 /wd4710 # These warn for the Windows stdlib
+        )
+
+    # pop /Wall and /Wextra - MSVC makes those **really** pedantic
+    list(POP_FRONT ${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS ${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS)
+    list(POP_FRONT ${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS ${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS)
+endif ()
 
 # -pedantic check
 check_cxx_compiler_flag(-pedantic HAS_RAW_PEDANTIC)
@@ -74,9 +83,3 @@ foreach (WARN_I IN LISTS ${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS)
     endif ()
 endforeach ()
 
-if (MSVC)
-    set(${INFO_PROJECT_NAME}_WARNINGS ${${INFO_PROJECT_NAME}_WARNINGS}
-        /wd4068 # Unknown pragma warnings
-        /wd4514 /wd4710 # These warn for the Windows stdlib
-        )
-endif ()

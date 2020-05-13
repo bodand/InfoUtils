@@ -6,8 +6,11 @@ bodand grew tired of ~~reimplementing them~~ copy-pasting from older projects. M
 utility directory gets lifted into this repo. 
 
 ## Documentation 
-Documentation is currently pending, as we await the completion of InfoScriptor,
-however, the code itself is well documented, regarding the API at least.
+Documentation currently relies on GitHub's Markdown viewing capabilities, and
+is found under the `docs` directory as markdown files for the general usage
+of the library.
+For class-level documentation, check the header files at the moment. There are 
+a few features which may be undocumented like `info::functor`. This is work in progress.
 
 ## Utilities
 Currently, this is the list of utilities supported in InfoUtils.
@@ -34,12 +37,7 @@ class-types described above. These are used internally by InfoUtils as well.
 
 The InfoUtils project is licensed under the `BSD 3-Clause` license. For more information
 see the provided *LICENSE* file.<br />
-The dependency [Boost][boost] is licensed under the `Boost Software License`. For more information
-see the provided *LICENSE.boost* file, or the official [website][bsl].<br />
-The test dependency [snowhouse][sh] is licensed under the `Boost Software License`. For more information
-see the provided *LICENSE.boost* file, or the official [website][bsl].
+The project uses [Catch2][c2] as a test dependency which is licensed under the `Boost Software License`.
+For more information see the provided *LICENSE.boost* file.
 
-
-[boost]: https://boost.org/
-[sh]: https://github.com/banditcpp/snowhouse
-[bsl]: https://www.boost.org/users/license.html
+[c2]: https://github.com/catchorg/Catch2

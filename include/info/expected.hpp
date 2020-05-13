@@ -1,22 +1,22 @@
 //// BSD 3-Clause License
-// 
+//
 // Copyright (c) 2020, bodand
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its
 //    contributors may be used to endorse or promote products derived from
 //    this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,12 +41,22 @@
 // project
 #include "_macros.hpp"
 
+#ifndef INFO_USE_UNEXPECTED
+#  ifdef _MSC_VER
+#    define INFO_UNEXPECTED unexpected_
+#  else
+#    define INFO_UNEXPECTED unexpected
+#  endif
+#else
+#  define INFO_UNEXPECTED INFO_USE_UNEXPECTED
+#endif
+
 namespace info {
   template<class T>
-  struct unexpected {
+  struct INFO_UNEXPECTED {
       T value;
 
-      explicit unexpected(const T& value) noexcept
+      explicit INFO_UNEXPECTED(const T& value) noexcept
              : value{value} {}
   };
 
@@ -194,8 +204,8 @@ namespace info {
       expected(const T&) noexcept(std::is_nothrow_copy_constructible_v<T>);
       expected(T&&) noexcept(std::is_nothrow_move_constructible_v<T>);
 
-      expected(const unexpected<E>&) noexcept(std::is_nothrow_copy_constructible_v<E>);
-      expected(unexpected<E>&&) noexcept(std::is_nothrow_move_constructible_v<E>);
+      expected(const INFO_UNEXPECTED<E>&) noexcept(std::is_nothrow_copy_constructible_v<E>);
+      expected(INFO_UNEXPECTED<E>&&) noexcept(std::is_nothrow_move_constructible_v<E>);
 
       expected(const expected<T, E>& cp) noexcept(
       /**/std::is_nothrow_copy_constructible_v<T>
@@ -277,7 +287,7 @@ namespace info {
   expected<T, E>::apply(F&& f) const noexcept(std::is_nothrow_invocable_v<F, T>) {
       if (_ok) INFO_LIKELY
           return std::forward<F>(f)(std::move(_succ));
-      return unexpected{std::move(_fail)};
+      return INFO_UNEXPECTED{std::move(_fail)};
   }
 
   template<class T, class E>
@@ -309,7 +319,7 @@ namespace info {
   }
 
   template<class T, class E>
-  expected<T, E>::expected(const unexpected<E>& unexp) noexcept(
+  expected<T, E>::expected(const INFO_UNEXPECTED<E>& unexp) noexcept(
   /**/std::is_nothrow_copy_constructible_v<E>
   )
          : _ok{false} {
@@ -317,7 +327,7 @@ namespace info {
   }
 
   template<class T, class E>
-  expected<T, E>::expected(unexpected<E>&& un) noexcept(
+  expected<T, E>::expected(INFO_UNEXPECTED<E>&& un) noexcept(
   /**/std::is_nothrow_move_constructible_v<E>
   )
          : _ok(false) {
@@ -396,7 +406,7 @@ namespace info {
 
       expected() noexcept;
 
-      expected(const unexpected<E>&) noexcept(std::is_nothrow_copy_constructible_v<E>);
+      expected(const INFO_UNEXPECTED<E>&) noexcept(std::is_nothrow_copy_constructible_v<E>);
 
       expected(const expected& cp) noexcept(
       /**/std::is_nothrow_copy_constructible_v<E>
@@ -434,8 +444,12 @@ namespace info {
          : _err{std::nullopt} {}
 
   template<class E>
-  expected<void, E>::expected(const unexpected<E>& unexp) noexcept(
+  expected<void, E>::expected(const INFO_UNEXPECTED<E>& unexp) noexcept(
   /**/std::is_nothrow_copy_constructible_v<E>
   )
          : _err{unexp.value} {}
 }
+
+#ifdef INFO_USE_UNEXPECTED
+#  undef INFO_UNEXPECTED
+#endif

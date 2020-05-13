@@ -1,22 +1,22 @@
 //// BSD 3-Clause License
-//
+// 
 // Copyright (c) 2020, bodand
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-//
+// 
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-//
+// 
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-//
+// 
 // 3. Neither the name of the copyright holder nor the names of its
 //    contributors may be used to endorse or promote products derived from
 //    this software without specific prior written permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -29,102 +29,94 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //
-// Created by bodand on 2020-03-22.
+// Created by bodand on 2020-05-13.
 //
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wused-but-marked-unused"
-#pragma ide diagnostic ignored "MemberFunctionCanBeStaticInspection"
-#pragma ide diagnostic ignored "cert-err58-cpp"
-#pragma once
+#include <catch2/catch.hpp>
 
-#include "assertion.hpp"
+// test'd
 #include <info/nonnull.hpp>
 
-BOOST_AUTO_TEST_SUITE(Info)
-  BOOST_AUTO_TEST_SUITE(Utils)
+using namespace info;
 
-    BOOST_AUTO_TEST_CASE(nonnull_accepts_valid_pointer) {
+TEST_CASE("Nonnull tests", "[nonnull][nullability]") {
+    SECTION("Accepts valid pointer") {
         int i = 42;
-        info::nonnull non{&i};
+        nonnull non{&i};
 
-        INFO_TEST_ASSERT(non, Is().EqualTo(&i));
+        CHECK(non == &i);
     }
 
-    BOOST_AUTO_TEST_CASE(nonnull_accepts_valid_std_shared_ptr) {
+    SECTION("Accepts smart pointer") {
         auto ip = std::make_shared<int>(42);
         info::nonnull<int*> non{ip};
 
-        INFO_TEST_ASSERT(*non, Is().EqualTo(42));
+        CHECK(non == ip.get());
     }
 
-    BOOST_AUTO_TEST_CASE(nonnull_returns_true_in_bool_context) {
+    SECTION("Returns true when converted to bool") {
         int i = 42;
         info::nonnull non{&i};
 
-        INFO_TEST_ASSERT(non, IsTrue());
+        CHECK(non);
     }
 
-    BOOST_AUTO_TEST_CASE(nonnull_retains_valid_pointer_values) {
+    SECTION("Does not modify pointed at value") {
         int i = 42;
         info::nonnull non{&i};
 
-        INFO_TEST_ASSERT(*non, Is().EqualTo(42));
+        CHECK(*non == 42);
     }
 
-    BOOST_AUTO_TEST_CASE(nonnull_allows_pointer_access) {
+    SECTION("Allows pointer member-access") {
         struct Foo {
             int a;
         } foo{42};
         info::nonnull non{&foo};
 
-        INFO_TEST_ASSERT(non->a, Is().EqualTo(42));
+        CHECK(non->a == 42);
     }
 
-    BOOST_AUTO_TEST_CASE(nonnunll_works_as_function_parameter) {
+    SECTION("Can be passed as raw-pointer") {
         auto f = [](info::nonnull<int*> ptr) {
           return ptr.get();
         };
         int i = 42;
 
-        INFO_TEST_ASSERT(*f(&i), Is().EqualTo(42));
+        CHECK(*f(&i) == i);
     }
 
-    BOOST_AUTO_TEST_CASE(nonnull_works_with_inheritance) {
+    SECTION("Does not break inheritance-based polymorphism") {
         struct Foo {
             virtual int make() = 0;
             virtual ~Foo() = default;
         };
+
         struct Bar : Foo {
         private:
             int make() override { return 1; }
-        };
+        } bar;
+
         auto f = [](info::nonnull<Foo*> ptr) {
           return ptr->make();
         };
-        Bar bar;
 
-        INFO_TEST_ASSERT(f(&bar), Is().EqualTo(1));
+        CHECK(f(&bar) == 1);
     }
 
-    BOOST_AUTO_TEST_CASE(hash_works_for_nonnull) {
+    SECTION("Hash differentiates nonnulls as pointers"){
         std::hash<info::nonnull<int*>> h{};
         int a = 4, b = 2;
-        info::nonnull nona{&a}, nonb{&b}, nona2{&a};
+        info::nonnull nona{&a}, nonb{&b};
 
-        INFO_TEST_ASSERT(h(nona), Is().Not().EqualTo(h(nonb)));
-        INFO_TEST_ASSERT(h(nona), Is().EqualTo(h(nona2)));
+        CHECK(h(nona) != h(nonb));
     }
 
-    BOOST_AUTO_TEST_CASE(hash_is_consistent_for_nonnull) {
+    SECTION("Hash is consistent") { // or whatever it is called
         std::hash<info::nonnull<int*>> h{};
         int a = 42;
         info::nonnull ap{&a};
 
-        INFO_TEST_ASSERT(h(ap), Is().EqualTo(h(ap)));
+        CHECK(h(ap) == h(ap));
     }
-
-  BOOST_AUTO_TEST_SUITE_END()
-BOOST_AUTO_TEST_SUITE_END()
-
-#pragma clang diagnostic pop
+}

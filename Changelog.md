@@ -7,6 +7,34 @@ by the developer publishing that version addressed to other developers (or their
 which are more implementation detail oriented.
 Patch updates may not include the whole set of subheaders at the developer's discretion.  
 
+## VERSION 1.4.0 - Izanami
+
+### Added:
+ - Brief docs about general project usage and config
+ - MSVC Compliance with a bit of a tweak: see `Compliance#MSVC` in `docs/`
+
+### Changed:
+ - `info::unexpected` for people who build for GCC/Clang **and** MSVC. This is not
+ considered a breaking change, as before Izanami MSVC wouldn't compile, so there
+ is no code to be broken by this. GCC/Clang only libraries will not experience any change. 
+ - MSVC now has `/W4`, `/Wall`, and `/Wextra` disabled as those are really pedantic
+   and warn for nigh each character you write
+ - Drastic internal changes
+ 
+### Removed:
+ - None
+ 
+### Developer notes:
+ Changed the test framework from `Boost.Test` to `Catch2`. I wanted to actually make
+ this change for a while, mostly because the way I used `Boost.Test` was horrendous 
+ anyways, and kind of wanted to try `Catch2`, but didn't really do the 
+ deed 'cause I's lazy. But the new C++ standard, C++20 deletes a stdlib function,
+ which was used by `Boost.Test v1.71.0`, which I can get my hands on using the 
+ `Boost-CMake` github project, therefore, it won't compile anymore in C++20 mode,
+ therefore, I was driven in a corner to actually make the change, which this version
+ contains. Should also decrease compile-times considerably, for the tests that is,
+ and mostly incremental build times.   
+
 ## VERSION 1.3.1 - Daedalus-2
 
 ### Changed:

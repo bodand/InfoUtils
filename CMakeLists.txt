@@ -46,14 +46,7 @@ set(INFO_PROJECT_NAMESPACE info)
 ## Debug-flags
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
     OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG --coverage")
-endif ()
-
-## Require C++17+
-if ((NOT CMAKE_CXX_STANDARD)
-     OR CMAKE_CXX_STANDARD
-     AND (NOT CMAKE_CXX_STANDARD LESS "17"))
-    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
 endif ()
 
 ## Project level macros
@@ -64,6 +57,12 @@ set(${INFO_PROJECT_NAME}_TARGET iu)
 ## Initialize target
 add_library(${${INFO_PROJECT_NAME}_TARGET} INTERFACE)
 add_library(info::utils ALIAS ${${INFO_PROJECT_NAME}_TARGET})
+
+## Require C++17
+set_target_properties(${${INFO_PROJECT_NAME}_TARGET}
+                      PROPERTIES
+                      INTERFACE_CXX_STANDARD 17)
+# will change to 20 on the first new version after 2021-01-01
 
 # Check for required features and
 #  applicable warnings

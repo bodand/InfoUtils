@@ -39,16 +39,10 @@ message(STATUS "Registering dependencies - done")
 if (INFO_UTILS_BUILD_TESTS)
     message(STATUS "Registering test dependencies")
 
-    FetchContent_Declare( # Assertion library for cooler syntax
-            snowhouse
-            GIT_REPOSITORY https://github.com/banditcpp/snowhouse.git
-            GIT_TAG v5.0.0
-            )
-
-    FetchContent_Declare( # Pulls in Boost
-            Boost-CMake
-            GIT_REPOSITORY https://github.com/Orphis/boost-cmake.git
-            # USE MASTER
+    FetchContent_Declare(
+            Catch2
+            GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+            GIT_TAG v2.12.1
             )
 
     message(STATUS "Registering test dependencies - done")
@@ -62,8 +56,9 @@ message(STATUS "Getting dependencies - done")
 if (INFO_UTILS_BUILD_TESTS)
     message(STATUS "Getting test dependencies")
 
-    FetchContent_MakeAvailable(snowhouse)
-    FetchContent_MakeAvailable(Boost-CMake)
+    FetchContent_MakeAvailable(Catch2)
+    # this is most likely a handful of implementation details I'm depending on, but whatever
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CACHEFILE_DIR}/_deps/catch2-src/contrib")
 
     message(STATUS "Getting test dependencies - done")
 endif ()

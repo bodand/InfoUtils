@@ -1,22 +1,22 @@
 //// BSD 3-Clause License
-//
+// 
 // Copyright (c) 2020, bodand
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-//
+// 
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-//
+// 
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-//
+// 
 // 3. Neither the name of the copyright holder nor the names of its
 //    contributors may be used to endorse or promote products derived from
 //    this software without specific prior written permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -29,41 +29,46 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //
-// Created by bodand on 2020-04-16.
+// Created by bodand on 2020-05-13.
 //
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wused-but-marked-unused"
-#pragma ide diagnostic ignored "MemberFunctionCanBeStaticInspection"
-#pragma ide diagnostic ignored "cert-err58-cpp"
-#pragma once
+#include <catch2/catch.hpp>
 
-#include "assertion.hpp"
+// test'd
+#include <info/functor.hpp>
 
-BOOST_AUTO_TEST_SUITE(Info)
-  BOOST_AUTO_TEST_SUITE(Utils)
-    using namespace info;
+using namespace info;
 
-    struct foo {
-        template<class T = void>
-        int f() {
-            static_assert(fail_v<T>, "Usage is forbidden");
-            return 1;
-        }
-
-        int b() {
-            return 0;
-        }
-    };
-
-    BOOST_AUTO_TEST_CASE(fail_doesnt_cause_compilation_failure_if_enclosing_template_is_not_instantiated) {
-        foo f;
-
-        INFO_TEST_ASSERT(f.b(), Equals(0));
-        BOOST_CHECK_MESSAGE(true, "Compilation was not aborted");
+struct func {
+    int operator()(int, char) {
+        return ++i;
     }
 
-  BOOST_AUTO_TEST_SUITE_END()
-BOOST_AUTO_TEST_SUITE_END()
+    int i{0};
+};
 
-#pragma clang diagnostic pop
+int plain_fun(int) {
+    return 1;
+}
+
+TEST_CASE("Functor tests", "[functor]") {
+    SECTION("functor is callable") {
+        functor<int(int, char)> fun{func{}};
+
+        CHECK(fun(1, '?') == 1);
+    }
+
+    SECTION("functor is callable with plain function") {
+        functor<int(int)> fun{plain_fun};
+
+        CHECK(fun(1) == 1);
+    }
+
+    SECTION("functor keeps the state of the functor") {
+        functor<int(int, char)> fun{func{}};
+
+        REQUIRE(fun(1, '?') == 1);
+        REQUIRE(fun(1, '?') == 2);
+        REQUIRE(fun(1, '?') == 3);
+    }
+}

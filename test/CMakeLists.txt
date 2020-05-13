@@ -28,48 +28,30 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+include(CTest)
+include(Catch)
+
 project(InfoUtils_Test CXX)
 
 enable_testing()
 
-set(INFO_UTILS_TEST_HEADERS
-    Test_Tests.hpp
-    Test_Lambda.hpp
-    Test_Nullable.hpp
-    Test_Nonnull.hpp
-    Test_Expected.hpp
-    Test_Fail.hpp
-    Test_StatefulFunctor.hpp
-    )
-
-foreach (case IN LISTS INFO_UTILS_TEST_HEADERS)
-    # line-break is important there
-    set(INFO_UTILS_TEST_CASES "${INFO_UTILS_TEST_CASES}
-#include \"${case}\"")
-endforeach ()
-
-configure_file(
-        "${PROJECT_SOURCE_DIR}/main.cpp.in"
-        "${PROJECT_SOURCE_DIR}/main.cpp"
-)
-
-add_executable(iu_test main.cpp)
-
-target_include_directories(iu_test
-                           PRIVATE ${Utils_INCLUDE_DIR})
+add_executable(iu_test
+               main.cpp
+               expected.test.cpp
+               fail.test.cpp
+               lambda.test.cpp
+               functor.test.cpp
+               nonnull.test.cpp nullable.test.cpp)
 
 target_link_libraries(iu_test
-                      ${Utils_TARGET}
-                      Boost::boost
-                      snowhouse
+                      info::utils
+                      Catch2::Catch2
                       )
 
-if ((CMAKE_CXX_COMPILER_ID STREQUAL "GCC")
-     OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
-    target_compile_options(iu_test BEFORE PUBLIC -pthread)
-    target_link_options(iu_test PUBLIC -lpthread)
-endif ()
+target_compile_definitions(iu_test
+                           PRIVATE -DUSE_UNEXPECTED=$<IF:$<CXX_COMPILER_ID:MSVC>,unexpected_,unexpected>)
 
-add_test(InfoUtilsTests
-         "iu_test -v"
-         )
+set_target_properties(iu_test PROPERTIES
+                      CXX_STANDARD 17)
+
+catch_discover_tests(iu_test)

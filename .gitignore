@@ -2,10 +2,7 @@
 .idea/
 
 ### Build dirs
-*build*/
-
-### Test mains
-test/main.cpp
+_build*/
 
 ### Configured values
 

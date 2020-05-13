@@ -1,22 +1,22 @@
-// // BSD 3-Clause License
-//
+//// BSD 3-Clause License
+// 
 // Copyright (c) 2020, bodand
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-//
+// 
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-//
+// 
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-//
+// 
 // 3. Neither the name of the copyright holder nor the names of its
 //    contributors may be used to endorse or promote products derived from
 //    this software without specific prior written permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,42 +28,33 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 //
-// Created by bodand on 2020-03-10.
+// Created by bodand on 2020-05-13.
 //
 
-#pragma once
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Weverything"
-#elif defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wall"
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#elif defined(_MSC_VER)
-#pragma warning(push, 1)
-#pragma warning(disable: 4866 5045 4548)
-#endif
+#include <catch2/catch.hpp>
 
-#include <boost/test/included/unit_test.hpp>
-#include <snowhouse/snowhouse.h>
+// tested
+#include <info/fail.hpp>
 
-using namespace snowhouse;
+using namespace info;
 
-#define INFO_TEST_ASSERT(A, T)\
-try {\
-    AssertThat((A), (T));\
-    BOOST_CHECK_MESSAGE(true, "Assertion passed: '" #A " " #T "'");\
-} catch (const AssertionException& e) {\
-    BOOST_ERROR("Assertion failed: '" #A " " #T "' with message: ");\
-    std::cout << e.what();\
+struct foo {
+    template<class T = void>
+    int f() {
+        static_assert(fail_v<T>, "Usage is forbidden");
+        return 1;
+    }
+
+    int b() {
+        return 0;
+    }
+};
+
+TEST_CASE("Fail tests", "[fail]") {
+    foo f;
+
+    SECTION("Fail should not fail compilation unless instantiated") {
+        REQUIRE(f.b() == 0); // any alibi check works
+    }
 }
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#pragma warning(pop)
-#endif

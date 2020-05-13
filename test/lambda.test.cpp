@@ -29,53 +29,49 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //
-// Created by bodand on 2020-05-01.
+// Created by bodand on 2020-05-13.
 //
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wused-but-marked-unused"
-#pragma ide diagnostic ignored "MemberFunctionCanBeStaticInspection"
-#pragma ide diagnostic ignored "cert-err58-cpp"
-#pragma once
+#include <catch2/catch.hpp>
 
-#include "assertion.hpp"
-#include <info/functor.hpp>
+// stdlib
+#include <numeric>
 
-BOOST_AUTO_TEST_SUITE(Info)
-  BOOST_AUTO_TEST_SUITE(Utils)
-    using namespace info;
+// test'd
+#include <info/lambda.hpp>
+using namespace info;
 
-    struct foo_ {
-        int operator()(int, char) {
-            return ++i;
-        }
+TEST_CASE("info::lambda tests", "[lambda]") {
+    SECTION("lambda allows recursion") {
+        int call_count = 0;
+        auto sut = lambda([&call_count](auto self, int call_times) -> void {
+          ++call_count;
 
-        int i{0};
-    };
+          if (call_times != 0)
+              self(call_times - 1);
+        });
 
-    int plain_fun(int) {
-        return 1;
+        sut(4);
+
+        CHECK(call_count == 5);
     }
 
-    BOOST_AUTO_TEST_CASE(s_functor_is_callable) {
-        functor<int(int, char)> fun{foo_{}};
+    SECTION("lambda doesn't disturb return types and parameters") {
+        auto sut = lambda([](auto self, auto n) {
+          if (n == 0)
+              return std::vector<decltype(n)>{n};
 
-        BOOST_CHECK_EQUAL(fun(1, 'a'), 1);
+          auto ret = self(n - 1);
+          ret.push_back(n);
+          return ret;
+        });
+        unsigned n = 6;
+
+        auto got = sut(n);
+
+        std::vector<unsigned> exp(n + 1);
+        std::iota(exp.begin(), exp.end(), 0);
+
+        CHECK_THAT(got, Catch::Equals(exp));
     }
-
-    BOOST_AUTO_TEST_CASE(s_functor_is_callable_with_plain_function) {
-        functor<int(int)> fun{plain_fun};
-
-        BOOST_CHECK_EQUAL(fun(1), 1);
-    }
-
-    BOOST_AUTO_TEST_CASE(s_functor_keeps_functors_state) {
-        functor<int(int, char)> fun{foo_{}};
-
-        BOOST_CHECK_EQUAL(fun(1, '?'), 1);
-        BOOST_CHECK_EQUAL(fun(1, '?'), 2);
-        BOOST_CHECK_EQUAL(fun(1, '?'), 3);
-    }
-
-  BOOST_AUTO_TEST_SUITE_END()
-BOOST_AUTO_TEST_SUITE_END()
+}
