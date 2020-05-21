@@ -1,22 +1,22 @@
 //// BSD 3-Clause License
-//
+// 
 // Copyright (c) 2020, bodand
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-//
+// 
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-//
+// 
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-//
+// 
 // 3. Neither the name of the copyright holder nor the names of its
 //    contributors may be used to endorse or promote products derived from
 //    this software without specific prior written permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -29,27 +29,23 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //
-// Created by bodand on 2020-03-21.
+// Created by bodand on 2020-05-21.
 //
 
 #pragma once
-/// Aggregate header for all InfoUtils files
 
-// Lambda utility
-#include "lambda.hpp"
+#include <type_traits>
 
-// Pointer utilities
-#include "const_ptr.hpp"
-#include "nullable.hpp"
-#include "nonnull.hpp"
+#define PP_CAT_I(x, y) x##y
+#define PP_CAT(x, y) PP_CAT_I(x, y)
 
-// Exception utility
-#include "expected.hpp"
-
-// A Stateful Function implementation
-// Dear Functional People, I don't care about your purity.
-#include "functor.hpp"
-
-// Compile-time utilities
-#include "fail.hpp"
-#include "static_warning.hpp"
+#define static_warning(x, msg)                                                 \
+    class PP_CAT(static_warning_, __LINE__) {                                  \
+        [[deprecated("Static warning triggered: " msg)]]                       \
+        constexpr static void _(const std::false_type&) {}                     \
+        constexpr static void _(const std::true_type&) {}                      \
+    public:                                                                    \
+        constexpr PP_CAT(static_warning_, __LINE__)() {                        \
+            _(std::integral_constant<bool, (x)>{});                            \
+        }                                                                      \
+    }

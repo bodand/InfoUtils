@@ -7,6 +7,17 @@ by the developer publishing that version addressed to other developers (or their
 which are more implementation detail oriented.
 Patch updates may not include the whole set of subheaders at the developer's discretion.  
 
+## VERSION 1.5.0 - Heimdallr
+
+### Added:
+ - `static_warning` to conditionally warn the user during compilation
+
+### Changed:
+ - `info::functor` can now can be move assigned
+
+### Removed:
+ - None
+
 ## VERSION 1.4.0 - Izanami
 
 ### Added:

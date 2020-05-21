@@ -36,7 +36,7 @@ option(INFO_UTILS_BUILD_TESTS "Build the test-suite for InfoUtils. [On]" On)
 
 ## Project declaration
 project(InfoUtils
-        VERSION 1.2
+        VERSION 1.5.0
         LANGUAGES CXX)
 
 ## Project settings
