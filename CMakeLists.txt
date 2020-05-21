@@ -64,15 +64,6 @@ set_target_properties(${${INFO_PROJECT_NAME}_TARGET}
                       INTERFACE_CXX_STANDARD 17)
 # will change to 20 on the first new version after 2021-01-01
 
-# Check for required features and
-#  applicable warnings
-include(FeatureTests)
-
-# Add warnings
-target_compile_options(${${INFO_PROJECT_NAME}_TARGET}
-                       INTERFACE
-                       ${${INFO_PROJECT_NAME}_WARNINGS})
-
 # Dependencies
 include(Dependencies)
 

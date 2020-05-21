@@ -54,4 +54,13 @@ target_compile_definitions(iu_test
 set_target_properties(iu_test PROPERTIES
                       CXX_STANDARD 17)
 
+# Check for required features and
+#  applicable warnings
+include(FeatureTests)
+
+# Add warnings
+target_compile_options(iu_test
+                       PRIVATE
+                       ${Utils_WARNINGS})
+
 catch_discover_tests(iu_test)

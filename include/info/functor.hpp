@@ -88,7 +88,8 @@ namespace info {
       template<class Functor>
       functor(Functor&&) noexcept;
 
-      functor(functor&&) noexcept;
+      functor(functor&&) noexcept = default;
+      functor& operator=(functor&&) noexcept = default;
 
       template<class... ArgsT_>
       R operator()(ArgsT_&& ...);
@@ -115,10 +116,5 @@ namespace info {
                     "Given arguments are not invocable with stored functor.");
 
       return _functor->operator()(std::forward<ArgsT>(args)...);
-  }
-
-  template<class R, class... ArgsT>
-  functor<R(ArgsT...)>::functor(functor&& mv) noexcept
-         : _functor(std::move(mv._functor)) {
   }
 }
