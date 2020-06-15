@@ -39,6 +39,7 @@ if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/GetDependency.cmake")
 endif ()
 include(GetDependency)
 
+message(STATUS "[InfoUtils] Getting dependencies")
 ## Build dependencies
 
 ## Test Dependencies

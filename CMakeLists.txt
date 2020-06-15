@@ -78,7 +78,7 @@ target_compile_features(${${PROJECT_NAME}_TARGET} INTERFACE
                         cxx_std_17)
 
 ## Dependencies
-include(dependencies)
+include(dependencies-${PROJECT_NAME})
 
 ## Warnings
 include(warnings)

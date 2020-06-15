@@ -7,6 +7,16 @@ by the developer publishing that version addressed to other developers (or their
 which are more implementation detail oriented.
 Patch updates may not include the whole set of subheaders at the developer's discretion.  
 
+## VERSION 1.5.2 - Heimdallr-3
+
+### Changed:
+ - CMake project structure even more
+
+## VERSION 1.5.1 - Heimdallr-2
+
+### Changed:
+ - CMake project structure
+
 ## VERSION 1.5.0 - Heimdallr
 
 ### Added:
