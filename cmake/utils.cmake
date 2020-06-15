@@ -29,37 +29,16 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-## CMake dependency manager capabilities
-include(FetchContent)
-message(STATUS "Registering dependencies")
-message(STATUS "Registering dependencies - done")
-
-## Dependencies
-## Test dependencies
-if (INFO_UTILS_BUILD_TESTS)
-    message(STATUS "Registering test dependencies")
-
-    FetchContent_Declare(
-            Catch2
-            GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-            GIT_TAG v2.12.1
-            )
-
-    message(STATUS "Registering test dependencies - done")
-endif ()
-
-## Get dependencies
-message(STATUS "Getting dependencies")
-message(STATUS "Getting dependencies - done")
-
-## Get test dependencies
-if (INFO_UTILS_BUILD_TESTS)
-    message(STATUS "Getting test dependencies")
-
-    FetchContent_MakeAvailable(Catch2)
-    # this is most likely a handful of implementation details I'm depending on, but whatever
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CACHEFILE_DIR}/_deps/catch2-src/contrib")
-
-    message(STATUS "Getting test dependencies - done")
-endif ()
-
+## NameOption(OptionValue Options StringValue)
+##
+## Assigns a string value from the list of two elements passed as Options
+## depending of the truthyness of the value passed as OptionValue
+## and returns in through StringValue
+function(NameOption ibOptionValue ilOptions ossStringValue)
+    if (ibOptionValue)
+        list(GET ilOptions 0 ssVal)
+    else ()
+        list(GET ilOptions 1 ssVal)
+    endif ()
+    set(${ossStringValue} ${ssVal} PARENT_SCOPE)
+endfunction()

@@ -31,15 +31,14 @@
 include(CheckCXXCompilerFlag)
 
 ## Compiler warnings
-function(CheckWarningFlag isName)
-    check_cxx_compiler_flag("-W${isName}" "HasWarning_${isName}")
-    set("HAS_WARNING_${isName}" ${HasWarning_${isName}} PARENT_SCOPE)
+function(CheckWarningFlag OptionName CacheName)
+    check_cxx_compiler_flag("-W${OptionName}" "HasWarning_${CacheName}")
+    set("HAS_WARNING_${CacheName}" ${HasWarning_${CacheName}} PARENT_SCOPE)
 endfunction()
 
 # Possible warnings to check for
-set(${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS
-    # Originating from Clang
-    all extra sign-compare switch-enum uninitialized unused cast-qual cast-align
+set("${PROJECT_NAME}_POSSIBLE_WARNINGS"
+    extra pedantic sign-compare uninitialized unused cast-qual cast-align
     abstract-vbase-init array-bounds-pointer-arithmetic assign-enum conditional-uninitialized
     consumed deprecated-implementations documentation-deprecated-sync non-virtual-dtor
     header-hygiene infinite-recursion keyword-macro loop-analysis
@@ -48,38 +47,20 @@ set(${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS
     undefined-internal-type undefined-reinterpret-cast unneeded-internal-declaration
     unreachable-code-aggressive unreachable-code-loop-increment unused-const-variable
     unused-exception-parameter unused-parameter unused-template unused-variable nullability-completeness
-    pedantic # -Wpedantic != -pedantic, right?
     no-unknown-pragmas no-unused-macros no-nullability-extension
-    no-c++20-extensions # we make sure not to use it if we can't
-    # Additions from GCC
+    no-c++20-extensions
     suggest-attribute=pure suggest-attribute=const suggest-attribute=cold suggest-final-types
     suggest-final-methods duplicated-branches trampolines placement-new=2 redundant-decls logical-op
     # User requested
     ${INFO_ADDITIONAL_WARNINGS} # todo document this
+    ${${PROJECT_NAME}_ADDITIONAL_WARNINGS} # todo document this
     )
 
-if (MSVC)
-    set(${INFO_PROJECT_NAME}_WARNINGS ${${INFO_PROJECT_NAME}_WARNINGS}
-        /wd4068 # Unknown pragma warnings
-        /wd4514 /wd4710 # These warn for the Windows stdlib
-        )
-
-    # pop /Wall and /Wextra - MSVC makes those **really** pedantic
-    list(POP_FRONT ${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS ${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS)
-    list(POP_FRONT ${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS ${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS)
-endif ()
-
-# -pedantic check
-check_cxx_compiler_flag(-pedantic HAS_RAW_PEDANTIC)
-if (HAS_RAW_PEDANTIC)
-    list(APPEND ${INFO_PROJECT_NAME}_WARNINGS -pedantic)
-endif ()
-
 # check warning flags
-foreach (WARN_I IN LISTS ${INFO_PROJECT_NAME}_POSSIBLE_WARNINGS)
-    CheckWarningFlag(${WARN_I})
-    if (HAS_WARNING_${WARN_I})
-        list(APPEND ${INFO_PROJECT_NAME}_WARNINGS -W${WARN_I})
+foreach (WARN_I IN LISTS "${PROJECT_NAME}_POSSIBLE_WARNINGS")
+    string(MAKE_C_IDENTIFIER "${WARN_I}" "CacheName")
+    CheckWarningFlag("${WARN_I}" ${CacheName})
+    if (HAS_WARNING_${CacheName})
+        list(APPEND "${PROJECT_NAME}_WARNINGS" -W${WARN_I})
     endif ()
 endforeach ()
-

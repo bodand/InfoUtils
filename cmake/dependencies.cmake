@@ -28,37 +28,25 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include("${CMAKE_BINARY_DIR}/_deps/catch2-src/contrib/Catch.cmake")
 
-set(TESTED_PROJECT_NAME ${PROJECT_NAME})
-project(${TESTED_PROJECT_NAME}_Test CXX)
+## GetDependency
+if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/GetDependency.cmake")
+    message(STATUS "Installing dependency manager")
+    file(DOWNLOAD
+         https://raw.githubusercontent.com/isbodand/GetDependency/master/cmake/GetDependency.cmake
+         "${CMAKE_CURRENT_LIST_DIR}/GetDependency.cmake"
+         )
+endif ()
+include(GetDependency)
 
-add_executable(${${TESTED_PROJECT_NAME}_TARGET}_test
-               main.cpp
-               expected.test.cpp
-               fail.test.cpp
-               lambda.test.cpp
-               functor.test.cpp
-               nonnull.test.cpp
-               nullable.test.cpp
-               )
+## Build dependencies
 
-target_link_libraries(${${TESTED_PROJECT_NAME}_TARGET}_test
-                      ${${TESTED_PROJECT_NAME}_NAMESPACE}
-                      Catch2::Catch2
-                      )
-
-target_compile_definitions(${${TESTED_PROJECT_NAME}_TARGET}_test PRIVATE
-                           -DUSE_UNEXPECTED=$<IF:$<CXX_COMPILER_ID:MSVC>,unexpected_,unexpected>)
-
-set_target_properties(${${TESTED_PROJECT_NAME}_TARGET}_test PROPERTIES
-                      CXX_STANDARD 17)
-target_compile_features(${${TESTED_PROJECT_NAME}_TARGET}_test
-                        PRIVATE cxx_std_17)
-
-# Add warnings
-target_compile_options(${${TESTED_PROJECT_NAME}_TARGET}_test
-                       PRIVATE
-                       ${${TESTED_PROJECT_NAME}_WARNINGS})
-
-catch_discover_tests(${${TESTED_PROJECT_NAME}_TARGET}_test)
+## Test Dependencies
+if (${PROJECT_NAME}_BUILD_TESTS)
+    # Catch2
+    GetDependency(
+            Catch2
+            REPOSITORY_URL https://github.com/catchorg/Catch2.git
+            VERSION v2.12.1
+    )
+endif ()
