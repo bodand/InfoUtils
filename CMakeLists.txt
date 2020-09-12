@@ -33,8 +33,10 @@ list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 ## Project declaration
 project(InfoUtils
-        VERSION 1.5.1
+        VERSION 1.6.0
         LANGUAGES CXX)
+
+include(GNUInstallDirs)
 
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(${PROJECT_NAME}_MAIN On)
@@ -63,7 +65,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
 ## Project level macros
 set(${PROJECT_NAME}_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
 set(${PROJECT_NAME}_HEADER_PATH "${${PROJECT_NAME}_INCLUDE_DIR}/info/")
-set(${PROJECT_NAME}_TARGET "${PROJECT_NAME}")
+set(${PROJECT_NAME}_TARGET utils)
 set(${PROJECT_NAME}_NAMESPACE info::utils)
 
 ## Initialize target
@@ -97,3 +99,44 @@ if (${PROJECT_NAME}_BUILD_TESTS)
 
     add_subdirectory(test)
 endif ()
+
+## install ##
+# utils target
+install(TARGETS "${${PROJECT_NAME}_TARGET}"
+        EXPORT ${PROJECT_NAME}Targets
+        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+        INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+        )
+
+# headers
+install(DIRECTORY
+        "${${PROJECT_NAME}_HEADER_PATH}"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+        FILES_MATCHING PATTERN "*.hpp"
+        )
+
+# version file
+write_basic_package_version_file(
+        ${PROJECT_NAME}ConfigVersion.cmake
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion
+)
+
+# target config cmake script thingies
+install(EXPORT ${PROJECT_NAME}Targets
+        FILE ${PROJECT_NAME}Targets.cmake
+        NAMESPACE info::
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+        )
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+               "${PROJECT_NAME}Config.cmake"
+               @ONLY)
+
+install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+        )

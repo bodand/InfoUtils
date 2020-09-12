@@ -7,6 +7,18 @@ by the developer publishing that version addressed to other developers (or their
 which are more implementation detail oriented.
 Patch updates may not include the whole set of subheaders at the developer's discretion.  
 
+## VERSION 1.6.0 - Sisyphus
+
+### Added:
+ - CMake install target that can install InfoUtils headers correctly for easy
+   reuse from other CMake project
+
+### Changed:
+ - CMake project structure to allow the addition describe above
+
+### Removed:
+ - None
+
 ## VERSION 1.5.2 - Heimdallr-3
 
 ### Changed:
