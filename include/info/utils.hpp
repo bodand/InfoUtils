@@ -1,6 +1,6 @@
-//// BSD 3-Clause License
+// BSD 3-Clause License
 //
-// Copyright (c) 2020, bodand
+// Copyright (c) 2020-2021,, bodand
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,10 +27,6 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-//
-// Created by bodand on 2020-03-21.
-//
 
 #pragma once
 /// Aggregate header for all InfoUtils files

@@ -1,6 +1,6 @@
-//// BSD 3-Clause License
+// BSD 3-Clause License
 //
-// Copyright (c) 2020, bodand
+// Copyright (c) 2020-2021, bodand
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,10 +28,6 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//
-// Created by bodand on 2020-03-21.
-//
-
 #pragma once
 
 #if __has_cpp_attribute(nodiscard) >= 201907L
@@ -47,6 +43,9 @@
 
 #if __has_cpp_attribute(likely) >= 201803L
 #  define INFO_LIKELY [[likely]]
+  #ifdef __GNUG__
+#  define INFO_LIKELY_COND [[likely]]
+  #endif
 #else
 #  define INFO_LIKELY
 #endif
