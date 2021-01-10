@@ -31,6 +31,6 @@
 #pragma once
 
 namespace info {
-  template<class T>
-  using const_ptr = T* const;
+    template<class T>
+    using const_ptr = T* const;
 }

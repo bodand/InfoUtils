@@ -1,6 +1,6 @@
 ## BSD 3-Clause License
 #
-# Copyright (c) 2020-2021,, bodand
+# Copyright (c) 2020-2021, bodand
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ add_executable(${${TESTED_PROJECT_NAME}_TARGET}_test
                functor.test.cpp
                nonnull.test.cpp
                nullable.test.cpp
+               future.test.cpp
                )
 
 target_link_libraries(${${TESTED_PROJECT_NAME}_TARGET}_test

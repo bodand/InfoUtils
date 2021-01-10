@@ -31,39 +31,54 @@
 #pragma once
 
 #if __has_cpp_attribute(nodiscard) >= 201907L
-#  define INFO_NODISCARD(MSG) [[nodiscard(MSG)]]
-#  define INFO_NODISCARD_JUST [[nodiscard]]
+#    define INFO_NODISCARD(MSG) [[nodiscard(MSG)]]
+#    define INFO_NODISCARD_JUST [[nodiscard]]
 #elif __has_cpp_attribute(nodiscard) >= 201603L
-#  define INFO_NODISCARD(...) [[nodiscard]]
-#  define INFO_NODISCARD_JUST [[nodiscard]]
+#    define INFO_NODISCARD(...) [[nodiscard]]
+#    define INFO_NODISCARD_JUST [[nodiscard]]
 #else
-#  define INFO_NODISCARD(...)
-#  define INFO_NODISCARD_JUST
+#    define INFO_NODISCARD(...)
+#    define INFO_NODISCARD_JUST
 #endif
 
 #if __has_cpp_attribute(likely) >= 201803L
-#  define INFO_LIKELY [[likely]]
-  #ifdef __GNUG__
-#  define INFO_LIKELY_COND [[likely]]
-  #endif
+#    define INFO_LIKELY [[likely]]
 #else
-#  define INFO_LIKELY
+#    define INFO_LIKELY
 #endif
 
 #if __has_cpp_attribute(unlikely) >= 201803L
-#  define INFO_UNLIKELY [[unlikely]]
+#    define INFO_UNLIKELY [[unlikely]]
 #else
-#  define INFO_UNLIKELY
+#    define INFO_UNLIKELY
+#endif
+
+#ifdef __GNUG__
+#    define INFO_LIKELY_(...) __builtin_expect(!!(__VA_ARGS__), 1)
+#    define INFO_UNLIKELY_(...) __builtin_expect(!!(__VA_ARGS__), 0)
+#else
+#    define INFO_LIKELY_(...) (__VA_ARGS__)
+#    define INFO_UNLIKELY_(...) (__VA_ARGS__)
 #endif
 
 #ifdef __cpp_constinit
-#  define INFO_CONSTINIT constinit
+/// \deprecated
+#    define INFO_CONSTINIT constinit
 #else
-#  define INFO_CONSTINIT constexpr
+/// \deprecated
+#    define INFO_CONSTINIT constexpr
 #endif
 
 #ifdef __cpp_consteval
-#  define INFO_CONSTEVAL consteval
+#    define INFO_CONSTEVAL consteval
 #else
-#  define INFO_CONSTEVAL constexpr
+#    define INFO_CONSTEVAL constexpr
+#endif
+
+#ifdef __GNUG__
+#    define INFO_UNREACHABLE __builtin_unreachable()
+#elif defined(_MSC_VER)
+#    define INFO_UNREACHABLE __assume(false)
+#else
+#    define INFO_UNREACHABLE (void) 0
 #endif

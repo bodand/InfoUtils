@@ -31,86 +31,87 @@
 #pragma once
 
 // stdlib
-#include <utility>
-#include <type_traits>
 #include <memory>
+#include <type_traits>
+#include <utility>
 
 // project
 #include "fail.hpp"
 
 namespace info {
-  namespace impl {
-    template<class R, class... ArgsT>
-    struct any_functor {
-        virtual R operator()(ArgsT...) = 0;
+    namespace impl {
+        template<class R, class... ArgsT>
+        struct any_functor {
+            virtual R operator()(ArgsT...) = 0;
 
-        virtual ~any_functor() = default;
-    };
+            virtual ~any_functor() = default;
+        };
 
-    template<class Functor, class R, class... ArgsT>
-    struct functor_wrapper : any_functor<R, ArgsT...> {
-        static_assert(std::is_invocable_r_v<R, Functor, ArgsT...>,
-                      "Supplied functor is not callable with required types.");
+        template<class Functor, class R, class... ArgsT>
+        struct functor_wrapper : any_functor<R, ArgsT...> {
+            static_assert(std::is_invocable_r_v<R, Functor, ArgsT...>,
+                          "Supplied functor is not callable with required types.");
 
-        R operator()(ArgsT...)
-        noexcept(std::is_nothrow_invocable_v<Functor, ArgsT...>) override;
+            R operator()(ArgsT...) noexcept(std::is_nothrow_invocable_v<Functor, ArgsT...>) override;
 
-        functor_wrapper(Functor&& functor)
-        noexcept(std::is_nothrow_move_constructible_v<Functor>);
-    private:
-        Functor _functor;
-    };
+            functor_wrapper(Functor&& functor) noexcept(std::is_nothrow_move_constructible_v<Functor>);
 
-    template<class Functor, class R, class... ArgsT>
-    R functor_wrapper<Functor, R, ArgsT...>::operator()(ArgsT... args)
-    noexcept(std::is_nothrow_invocable_v<Functor, ArgsT...>) {
-        return _functor(args...);
+        private:
+            Functor _functor;
+        };
+
+        template<class Functor, class R, class... ArgsT>
+        R
+        functor_wrapper<Functor, R, ArgsT...>::operator()(ArgsT... args) noexcept(
+               std::is_nothrow_invocable_v<Functor, ArgsT...>) {
+            return _functor(args...);
+        }
+
+        template<class Functor, class R, class... ArgsT>
+        functor_wrapper<Functor, R, ArgsT...>::functor_wrapper(Functor&& functor) noexcept(
+               std::is_nothrow_move_constructible_v<Functor>)
+             : _functor{functor} { }
     }
 
-    template<class Functor, class R, class... ArgsT>
-    functor_wrapper<Functor, R, ArgsT...>::functor_wrapper(Functor&& functor)
-    noexcept(std::is_nothrow_move_constructible_v<Functor>)
-           : _functor{functor} {}
-  }
+    template<class Functor>
+    struct functor {
+        static_assert(fail<Functor>::type,
+                      "Stateful-functor template arguments do not match a function type of R(Args...)");
+    };
 
-  template<class Functor>
-  struct functor {
-      static_assert(fail<Functor>::type,
-                    "Stateful-functor template arguments do not match a function type of R(Args...)");
-  };
+    template<class R, class... ArgsT>
+    struct functor<R(ArgsT...)> {
+        template<class Functor>
+        functor(Functor&&) noexcept;
 
-  template<class R, class... ArgsT>
-  struct functor<R(ArgsT...)> {
-      template<class Functor>
-      functor(Functor&&) noexcept;
+        functor(functor&&) noexcept = default;
+        functor& operator=(functor&&) noexcept = default;
 
-      functor(functor&&) noexcept = default;
-      functor& operator=(functor&&) noexcept = default;
+        template<class... ArgsT_>
+        R operator()(ArgsT_&&...);
 
-      template<class... ArgsT_>
-      R operator()(ArgsT_&& ...);
-  private:
-      std::unique_ptr<impl::any_functor<R, ArgsT...>> _functor;
-  };
+    private:
+        std::unique_ptr<impl::any_functor<R, ArgsT...>> _functor;
+    };
 
-  template<class R, class... ArgsT>
-  template<class Functor>
-  functor<R(ArgsT...)>::functor(Functor&& fun) noexcept
+    template<class R, class... ArgsT>
+    template<class Functor>
+    functor<R(ArgsT...)>::functor(Functor&& fun) noexcept
          : _functor{static_cast<impl::any_functor<R, ArgsT...>*>(
-                           new impl::functor_wrapper<Functor, R, ArgsT...>(std::forward<Functor>(fun))
-                    )} {
-      static_assert(std::is_invocable_r_v<R, Functor, ArgsT...>,
-                    "Passed functor is not invocable with required arguments and/or return type.");
-  }
+                new impl::functor_wrapper<Functor, R, ArgsT...>(std::forward<Functor>(fun)))} {
+        static_assert(std::is_invocable_r_v<R, Functor, ArgsT...>,
+                      "Passed functor is not invocable with required arguments and/or return type.");
+    }
 
-  template<class R, class... ArgsT>
-  template<class... ArgsT_>
-  R functor<R(ArgsT...)>::operator()(ArgsT_&& ... args) {
-      static_assert(sizeof...(ArgsT) == sizeof...(ArgsT_),
-                    "Given argument amount differs from required amount.");
-      static_assert(std::is_invocable_v<R(ArgsT...), ArgsT_...>,
-                    "Given arguments are not invocable with stored functor.");
+    template<class R, class... ArgsT>
+    template<class... ArgsT_>
+    R
+    functor<R(ArgsT...)>::operator()(ArgsT_&&... args) {
+        static_assert(sizeof...(ArgsT) == sizeof...(ArgsT_),
+                      "Given argument amount differs from required amount.");
+        static_assert(std::is_invocable_v<R(ArgsT...), ArgsT_...>,
+                      "Given arguments are not invocable with stored functor.");
 
-      return _functor->operator()(std::forward<ArgsT>(args)...);
-  }
+        return _functor->operator()(std::forward<ArgsT>(args)...);
+    }
 }

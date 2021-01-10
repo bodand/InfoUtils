@@ -33,10 +33,10 @@
 #include <type_traits>
 
 namespace info {
-  template<class>
-  struct fail : std::false_type {
-  };
+    template<class>
+    struct fail : std::false_type {
+    };
 
-  template<class T>
-  constexpr static auto fail_v = fail<T>::value;
+    template<class T>
+    constexpr static auto fail_v = fail<T>::value;
 }

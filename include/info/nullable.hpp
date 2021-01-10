@@ -31,20 +31,20 @@
 #pragma once
 
 // stdlib
-#include <type_traits>
 #include <functional>
+#include <type_traits>
 
 // project
 #include "_macros.hpp"
 
 #ifdef __clang__
-#  define INFO_NULLABLE _Nullable
+#    define INFO_NULLABLE _Nullable
 #else
-#  define INFO_NULLABLE
+#    define INFO_NULLABLE
 #endif
 
 namespace info {
-  /**
+    /**
    * \brief Explicitly nullable pointer type.
    *
    * A pointer wrapper type which explicitly allows nullability. Can be,
@@ -59,21 +59,21 @@ namespace info {
    * \since 1.0
    * \author bodand
    */
-  template<class T>
-  struct nullable {
-      static_assert(std::is_pointer_v<T>, "Nullable type must be a pointer.");
+    template<class T>
+    struct nullable {
+        static_assert(std::is_pointer_v<T>, "Nullable type must be a pointer.");
 
-      using pointer_type = INFO_NULLABLE T; ///< The type of the pointer stored
-      using value_type = std::remove_pointer_t<T>; ///< The type the pointer points to
-      using reference_type = value_type&; ///< The reference type to the pointee value
-      using const_reference_type = value_type const&; ///< The const reference type to the pointee value
+        using pointer_type = INFO_NULLABLE T;           ///< The type of the pointer stored
+        using value_type = std::remove_pointer_t<T>;    ///< The type the pointer points to
+        using reference_type = value_type&;             ///< The reference type to the pointee value
+        using const_reference_type = value_type const&; ///< The const reference type to the pointee value
 
-      /**
+        /**
        * \brief Constructor. Creates a nullable pointer from a raw pointer.
        */
-      nullable(pointer_type) noexcept;
+        nullable(pointer_type) noexcept;
 
-      /**
+        /**
        * \brief Constructor. Creates a nullable pointer from any
        * smart pointer.
        *
@@ -83,80 +83,82 @@ namespace info {
        * \tparam SmartPointer The type of smart pointer to build from. Must be
        *                       compatible with std smart pointers.
        */
-      template<template<class...> class SmartPointer>
-      nullable(SmartPointer<value_type>) noexcept;
+        template<template<class...> class SmartPointer>
+        nullable(SmartPointer<value_type>) noexcept;
 
-      /**
+        /**
        * \brief Returns the pointed at value. UB if null.
        * \return The pointee value
        */
-      INFO_NODISCARD("Accessor")
-      reference_type operator*();
-      /**
+        INFO_NODISCARD("Accessor")
+        reference_type operator*();
+        /**
        * \brief A const reference to the pointed at value. UB if null
        * \return The pointee value
        */
-      INFO_NODISCARD("Accessor")
-      const_reference_type operator*() const;
+        INFO_NODISCARD("Accessor")
+        const_reference_type operator*() const;
 
-      /**
+        /**
        * \brief A pointer access operator to the pointed at value. UB if null
        * \return
        */
-      INFO_NODISCARD("Accessor")
-      pointer_type operator->();
+        INFO_NODISCARD("Accessor")
+        pointer_type operator->();
 
-      /**
+        /**
        * \brief Returns the stored pointer. Of course, may be null.
        * \return The value of the pointer stored.
        */
-      INFO_NODISCARD("Accessor")
-      pointer_type get() const noexcept;
+        INFO_NODISCARD("Accessor")
+        pointer_type get() const noexcept;
 
-      /**
+        /**
        * \brief Returns whether the stored pointer is null.
        */
-      explicit operator bool() const noexcept;
+        explicit operator bool() const noexcept;
 
-      /**
+        /**
        * \brief Implicitly casts the nullable object to the stored pointer.
        * \return The stored pointer.
        */
-      operator pointer_type() noexcept;
-  private:
-      pointer_type _ptr; ///< The stored pointer
-  };
+        operator pointer_type() noexcept;
 
-  template<class T, class U>
-  bool operator==(nullable<T*>, U) noexcept;
-  template<class U, class T>
-  bool operator==(U, nullable<T*>) noexcept;
+    private:
+        pointer_type _ptr; ///< The stored pointer
+    };
 
-  template<class T, class U>
-  bool operator!=(nullable<T*>, U) noexcept;
-  template<class U, class T>
-  bool operator!=(U, nullable<T*>) noexcept;
+    template<class T, class U>
+    bool operator==(nullable<T*>, U) noexcept;
+    template<class U, class T>
+    bool operator==(U, nullable<T*>) noexcept;
+
+    template<class T, class U>
+    bool operator!=(nullable<T*>, U) noexcept;
+    template<class U, class T>
+    bool operator!=(U, nullable<T*>) noexcept;
 }
 
 namespace std {
-  template<class T>
-  struct hash<info::nullable<T>> {
-      size_t operator()(const info::nullable<T>& ptr) const noexcept {
-          if (ptr)
-              return hash<T>{}(ptr.get());
-          return hash<nullptr_t>{}(nullptr);
-      }
-  };
+    template<class T>
+    struct hash<info::nullable<T>> {
+        size_t
+        operator()(const info::nullable<T>& ptr) const noexcept {
+            if (ptr)
+                return hash<T>{}(ptr.get());
+            return hash<nullptr_t>{}(nullptr);
+        }
+    };
 }
 
 template<class T>
 info::nullable<T>::nullable(pointer_type ptr) noexcept
-       : _ptr{ptr} {}
+     : _ptr{ptr} { }
 
 template<class T>
 template<template<class...> class SmartPointer>
 info::nullable<T>::nullable(SmartPointer<value_type> sptr) noexcept
-       : _ptr{sptr.get()} {}
+     : _ptr{sptr.get()} { }
 
 template<class T>
 info::nullable<T>::operator pointer_type() noexcept {
@@ -193,7 +195,8 @@ info::nullable<T>::operator->() {
 }
 
 template<class T, class U>
-bool info::operator==(nullable<T*> nullable, U rhs) noexcept {
+bool
+info::operator==(nullable<T*> nullable, U rhs) noexcept {
     if constexpr (std::is_pointer_v<U> || std::is_null_pointer_v<U>)
         return nullable.get() == rhs;
     else if constexpr (std::is_same_v<bool, U>)
@@ -203,17 +206,19 @@ bool info::operator==(nullable<T*> nullable, U rhs) noexcept {
 }
 
 template<class T, class U>
-bool info::operator!=(nullable<T*> nullable, U rhs) noexcept {
+bool
+info::operator!=(nullable<T*> nullable, U rhs) noexcept {
     return !(nullable == rhs);
 }
 
 template<class U, class T>
-bool info::operator==(U lhs, info::nullable<T*> rhs) noexcept {
+bool
+info::operator==(U lhs, info::nullable<T*> rhs) noexcept {
     return rhs == lhs;
 }
 
 template<class U, class T>
-bool info::operator!=(U lhs, info::nullable<T*> rhs) noexcept {
+bool
+info::operator!=(U lhs, info::nullable<T*> rhs) noexcept {
     return rhs != lhs;
 }
-

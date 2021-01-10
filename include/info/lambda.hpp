@@ -41,7 +41,7 @@
  * InfoUtils works with this namespace
  */
 namespace info {
-  /**
+    /**
    * \brief Generalizes lambdas by allowing recursion
    *
    * A lambda construct wrapper allowing the creation of recursive lambdas.
@@ -62,9 +62,9 @@ namespace info {
    * \since 1.0
    * \author bodand
    */
-  template<class F>
-  struct lambda {
-      /**
+    template<class F>
+    struct lambda {
+        /**
        * \brief Calls the lambda with the passed arguments, plus itself for recursion
        *
        * Calls the lambda and passes this object with the other arguments
@@ -81,21 +81,22 @@ namespace info {
        *
        * \return The return value of the lambda. May be void.
        */
-      template<class... ArgsT>
-      auto operator()(ArgsT&& ... args) noexcept(std::is_nothrow_invocable_v<F, ArgsT...>) {
-          return _fun(*this, std::forward<ArgsT>(args)...);
-      }
+        template<class... ArgsT>
+        auto
+        operator()(ArgsT&&... args) noexcept(std::is_nothrow_invocable_v<F, ArgsT...>) {
+            return _fun(*this, std::forward<ArgsT>(args)...);
+        }
 
-      /**
+        /**
        * \brief Constructs a info::lambda object from any lambda type
        *
        * \param fun The lambda of unspecified type. This is the lambda upon
        *             which the power of recursion is to be bestowed
        */
-      lambda(F fun) noexcept
+        lambda(F fun) noexcept
              : _fun{fun} {};
 
-  private:
-      F _fun; ///< The real function object
-  };
+    private:
+        F _fun; ///< The real function object
+    };
 }

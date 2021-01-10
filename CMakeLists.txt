@@ -33,7 +33,7 @@ list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 ## Project declaration
 project(InfoUtils
-        VERSION 1.6.0
+        VERSION 1.7.0
         LANGUAGES CXX)
 
 include(GNUInstallDirs)

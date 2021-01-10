@@ -32,35 +32,53 @@ include(CheckCXXCompilerFlag)
 
 ## Compiler warnings
 function(CheckWarningFlag OptionName CacheName)
-    check_cxx_compiler_flag("-W${OptionName}" "HasWarning_${CacheName}")
+    if (OptionName MATCHES [[^/]]) # MSVC-style args are passed as-is
+        set(WarningPrefix "")
+    else ()
+        set(WarningPrefix "-W")
+    endif ()
+    check_cxx_compiler_flag("${WarningPrefix}${OptionName}" "HasWarning_${CacheName}")
     set("HAS_WARNING_${CacheName}" ${HasWarning_${CacheName}} PARENT_SCOPE)
 endfunction()
 
 # Possible warnings to check for
 set("${PROJECT_NAME}_POSSIBLE_WARNINGS"
-    extra pedantic sign-compare uninitialized unused cast-qual cast-align
-    abstract-vbase-init array-bounds-pointer-arithmetic assign-enum conditional-uninitialized
-    consumed deprecated-implementations documentation-deprecated-sync non-virtual-dtor
-    header-hygiene infinite-recursion keyword-macro loop-analysis
-    move newline-eof over-aligned redundant-parens reorder reserved-id-macro sign-conversion
-    signed-enum-bitfield sometimes-uninitialized tautological-overlap-compare thread-safety
-    undefined-internal-type undefined-reinterpret-cast unneeded-internal-declaration
-    unreachable-code-aggressive unreachable-code-loop-increment unused-const-variable
-    unused-exception-parameter unused-parameter unused-template unused-variable nullability-completeness
+    extra pedantic sign-compare error=uninitialized unused cast-qual cast-align
+    abstract-vbase-init array-bounds-pointer-arithmetic assign-enum consumed
+    conditional-uninitialized deprecated-implementations header-hygiene error=move
+    error=documentation-deprecated-sync error=non-virtual-dtor error=infinite-recursion
+    keyword-macro loop-analysis newline-eof over-aligned redundant-parens
+    reserved-id-macro sign-conversion signed-enum-bitfield thread-safety
+    undefined-internal-type undefined-reinterpret-cast unused-const-variable
+    unneeded-internal-declaration unreachable-code-aggressive unused-variable
+    unused-exception-parameter unused-parameter unused-template error=lifetime
+    error=sometimes-uninitialized tautological-overlap-compare suggest-final-types
+    nullability-completeness unreachable-code-loop-increment redundant-decls
+    suggest-attribute=pure suggest-attribute=const suggest-attribute=cold
+    suggest-final-methods duplicated-branches placement-new=2 error=trampolines
+    logical-op reorder implicit-fallthrough
+    /w14062 /w14165 /w14191 /w14242 /we4263 /w14265 /w14287 /w14296 /we4350 /we4355
+    /w14355 /w14471 /we4545 /w14546 /w14547 /w14548 /w14549 /w14557 /we4596 /w14605
+    /w14668 /w14768 /w14822 /we4837 /we4928 /we4946 /we4986 /w15032 /w15039 3
+    /diagnostics:caret
+    # disables
     no-unknown-pragmas no-unused-macros no-nullability-extension
     no-c++20-extensions
-    suggest-attribute=pure suggest-attribute=const suggest-attribute=cold suggest-final-types
-    suggest-final-methods duplicated-branches trampolines placement-new=2 redundant-decls logical-op
     # User requested
     ${INFO_ADDITIONAL_WARNINGS} # todo document this
     ${${PROJECT_NAME}_ADDITIONAL_WARNINGS} # todo document this
     )
 
 # check warning flags
-foreach (WARN_I IN LISTS "${PROJECT_NAME}_POSSIBLE_WARNINGS")
-    string(MAKE_C_IDENTIFIER "${WARN_I}" "CacheName")
-    CheckWarningFlag("${WARN_I}" ${CacheName})
-    if (HAS_WARNING_${CacheName})
-        list(APPEND "${PROJECT_NAME}_WARNINGS" -W${WARN_I})
+foreach (warn IN LISTS "${PROJECT_NAME}_POSSIBLE_WARNINGS")
+    string(MAKE_C_IDENTIFIER "${warn}" cwarn)
+    CheckWarningFlag("${warn}" "${cwarn}")
+    if ("${HAS_WARNING_${cwarn}}")
+        if (warn MATCHES [[^/]]) # MSVC-style args are passed as-is
+            set(WarningPrefix "")
+        else ()
+            set(WarningPrefix "-W")
+        endif ()
+        list(APPEND "${PROJECT_NAME}_WARNINGS" "${WarningPrefix}${warn}")
     endif ()
 endforeach ()

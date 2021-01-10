@@ -1,6 +1,6 @@
 // BSD 3-Clause License
 //
-// Copyright (c) 2020-2021,, bodand
+// Copyright (c) 2020-2021, bodand
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,9 +37,11 @@
 
 #define static_warning(x, msg)                                                 \
     class PP_CAT(static_warning_, __LINE__) {                                  \
-        [[deprecated("Static warning triggered: " msg)]]                       \
-        constexpr static void _(const std::false_type&) {}                     \
-        constexpr static void _(const std::true_type&) {}                      \
+        [[deprecated("Static warning triggered: " msg)]] constexpr static void \
+        _(const std::false_type&) { }                                          \
+        constexpr static void                                                  \
+        _(const std::true_type&) { }                                           \
+                                                                               \
     public:                                                                    \
         constexpr PP_CAT(static_warning_, __LINE__)() {                        \
             _(std::integral_constant<bool, (x)>{});                            \
