@@ -129,3 +129,12 @@ TEST_CASE("then callback can safely throw") {
     });
     CHECK_THROWS_WITH(f2.get(), Catch::Equals("yes"));
 }
+
+TEST_CASE("not setting value/exception causes promise_broken on promise destruction") {
+    info::future<int> f;
+    {
+        info::promise<int> p;
+        f = p.get_future();
+    }
+    CHECK_THROWS_AS(f.get(), std::future_error);
+}

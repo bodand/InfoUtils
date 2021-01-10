@@ -30,6 +30,7 @@
 
 #include <info/_macros.hpp>
 #include <info/expected.hpp>
+#include <info/fail.hpp>
 #include <info/static_warning.hpp>
 
 #include <cassert>
@@ -74,7 +75,7 @@ namespace info {
             std::mutex _mtx;
         };
 
-        template<class S, class Fn, class T>
+        template<class S, class T>
         struct chained_state;
 
         template<class T>
@@ -192,7 +193,7 @@ namespace info {
             }
 
         private:
-            template<class S, class F, class V>
+            template<class S, class V>
             friend struct chained_state;
 
             union {
@@ -202,9 +203,7 @@ namespace info {
             state_status _status;
         };
 
-        template<class S,
-                 class Fn,
-                 class T = std::invoke_result_t<Fn, std::add_lvalue_reference_t<std::add_const_t<typename S::value_type>>>>
+        template<class S, class T>
         struct chained_state : private awaitable {
             using value_type = T;
             using owned_type = S;
@@ -277,8 +276,7 @@ namespace info {
 
             chained_state(chained_state&& mv) noexcept(
                    std::is_nothrow_move_constructible_v<value_type>&&
-                          std::is_nothrow_move_constructible_v<Fn>&&
-                                 std::is_nothrow_move_constructible_v<std::unique_ptr<owned_type>>)
+                          std::is_nothrow_move_constructible_v<std::unique_ptr<owned_type>>)
                  : _fn(std::move(mv._fn)),
                    _status(mv._status),
                    _last_step(std::move(mv._last_step)) {
@@ -297,8 +295,7 @@ namespace info {
             chained_state&
             operator=(chained_state&& mv) noexcept(
                    std::is_nothrow_move_constructible_v<value_type>&&
-                          std::is_nothrow_move_assignable_v<Fn>&&
-                                 std::is_nothrow_move_assignable_v<std::unique_ptr<owned_type>>) {
+                          std::is_nothrow_move_assignable_v<std::unique_ptr<owned_type>>) {
                 _fn = std::move(mv._fn);
                 _status = mv._status;
                 _last_step = std::move(mv._last_step);
@@ -325,10 +322,10 @@ namespace info {
             }
 
         private:
-            template<class S_, class Fn_, class T_>
+            template<class S_, class T_>
             friend struct chained_state;
 
-            Fn _fn;
+            std::function<value_type(const prev_type&)> _fn;
             union {
                 value_type _value;
                 std::exception_ptr _exc;
@@ -361,14 +358,14 @@ namespace info {
             bool
             wait_for(const std::chrono::duration<Rep, Period>& dur) {
                 if (!valid()) throw std::future_error(std::future_errc::no_state);
-                _state->wait_for(dur);
+                return _state->wait_for(dur);
             }
 
             template<class Clock, class Duration>
             bool
             wait_until(const std::chrono::time_point<Clock, Duration>& tp) {
                 if (!valid()) throw std::future_error(std::future_errc::no_state);
-                _state->wait_until(tp);
+                return _state->wait_until(tp);
             }
 
             value_type
@@ -386,10 +383,10 @@ namespace info {
             template<class Fn>
             INFO_NODISCARD("After a then call the new future should be used for "
                            "all correspondence, the previous one is invalidated")
-            future<chained_state<S, Fn>> // clang-format off
+            future<chained_state<S, std::invoke_result_t<Fn, const value_type&>>> // clang-format off
             then(Fn&& fn) {
                 // clang-format on
-                return future<chained_state<S, Fn>>(std::move(_state), std::forward<Fn>(fn));
+                return {std::move(_state), std::forward<Fn>(fn)};
             }
 
             future() noexcept
@@ -413,10 +410,10 @@ namespace info {
             friend struct future; // we are our friend. Yes
 
             template<class... Args>
-            explicit future(Args&&... args)
+            future(Args&&... args)
                  : _state(std::make_unique<S>(std::forward<Args>(args)...)) { }
 
-            explicit future(int)
+            explicit future(unsigned)
                  : _state(std::make_unique<S>()) {
             }
 
@@ -451,12 +448,16 @@ namespace info {
             }
 
             promise()
-                 : _ftr(0xDEAD),
+                 : _ftr(0xDEADBEEF),
                    _state(_ftr._state.get()),
                    _set(false),
                    _ftr_moved(false) { }
 
-            ~promise() noexcept = default;
+            ~promise() noexcept {
+                if (!_set && _ftr_moved)
+                    _state->put_exception(std::make_exception_ptr(
+                           std::future_error(std::future_errc::broken_promise)));
+            };
 
         private:
             future_type _ftr;
