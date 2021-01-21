@@ -35,112 +35,133 @@
 
 using namespace info;
 
-TEST_CASE("Nullable tests", "[nullable][nullability]") {
-    SECTION("Accepts nullptr") {
-        nullable<int*> ptr{nullptr};
+TEST_CASE("nullable accepts nullptr",
+          "[InfoUtils][nullable][nullability]") {
+    nullable<int*> ptr{nullptr};
 
-        CHECK(ptr.get() == nullptr);
-    }
+    CHECK(ptr.get() == nullptr);
+}
 
-    SECTION("Accepts C-NULL") {
-        nullable<int*> ptr{NULL};
+TEST_CASE("nullable accepts C-NULL",
+          "[InfoUtils][nullable][nullability]") {
+    nullable<int*> ptr{NULL};
 
-        CHECK(ptr.get() == nullptr);
-    }
+    CHECK(ptr.get() == nullptr);
+}
 
-    SECTION("Accepts default constructed smart pointer") {
-        std::shared_ptr<int> ip;
-        nullable<int*> ptr{ip};
+TEST_CASE("nullable accepts default constructed shared_ptr smart pointer",
+          "[InfoUtils][nullable][nullability]") {
+    std::shared_ptr<int> ip;
+    nullable<int*> ptr{ip};
 
-        CHECK(ptr == nullptr);
-    }
+    CHECK(ptr == nullptr);
+}
 
-    SECTION("Accepts valid pointer") {
-        int i = 42;
-        nullable ptr{&i};
+TEST_CASE("nullable accepts valid pointer",
+          "[InfoUtils][nullable][nullability]") {
+    int i = 42;
+    nullable ptr{&i};
 
-        CHECK(ptr == &i);
-    }
+    CHECK(ptr == &i);
+}
 
-    SECTION("Accepts smart pointer") {
-        auto ip = std::make_shared<int>(42);
-        nullable<int*> ptr{ip};
+TEST_CASE("nullable accepts smart_ptr smart pointer",
+          "[InfoUtils][nullable][nullability]") {
+    auto ip = std::make_shared<int>(42);
+    nullable<int*> ptr{ip};
 
-        CHECK(ptr == ip.get());
-    }
+    CHECK(ptr == ip.get());
+}
 
-    SECTION("Returns true when converted to bool") {
-        int i = 42;
-        nullable ptr{&i};
+TEST_CASE("nullable converts to true when contains valid pointer",
+          "[InfoUtils][nullable][nullability]") {
+    int i = 42;
+    nullable ptr{&i};
 
-        CHECK(ptr);
-    }
+    CHECK(ptr);
+}
 
-    SECTION("Does not modify pointed at value") {
-        int i = 42;
-        nullable ptr{&i};
+TEST_CASE("nullable converts to false when contains nullptr",
+          "[InfoUtils][nullable][nullability]") {
+    nullable<int*> ptr{nullptr};
 
-        CHECK(*ptr == 42);
-    }
+    CHECK_FALSE(ptr);
+}
 
-    SECTION("Allows pointer member-access") {
-        struct Foo {
-            int a;
-        } foo{42};
-        nullable ptr{&foo};
+TEST_CASE("nullable does not modify pointed at value",
+          "[InfoUtils][nullable][nullability]") {
+    int i = 42;
+    nullable ptr{&i};
 
-        CHECK(ptr->a == 42);
-    }
+    CHECK(*ptr == 42);
+}
 
-    SECTION("Can be passed as raw-pointer") {
-        auto f = [](nullable<int*> ptr) {
-          return ptr.get();
-        };
-        int i = 42;
+TEST_CASE("nullable allows pointer dereference-access",
+          "[InfoUtils][nullable][nullability]") {
+    struct Foo {
+        int a;
+    } foo{42};
+    nullable ptr{&foo};
 
-        CHECK(*f(&i) == i);
-    }
+    CHECK(ptr->a == 42);
+}
 
-    SECTION("Does not break inheritance-based polymorphism") {
-        struct Foo {
-            virtual int make() = 0;
-            virtual ~Foo() = default;
-        };
+TEST_CASE("nullable can be passed from raw-pointer",
+          "[InfoUtils][nullable][nullability]") {
+    auto f = [](nullable<int*> ptr) {
+        return ptr.get();
+    };
+    int i = 42;
 
-        struct Bar : Foo {
-        private:
-            int make() override { return 1; }
-        } bar;
+    CHECK(*f(&i) == i);
+}
 
-        auto f = [](nullable<Foo*> ptr) {
-          return ptr->make();
-        };
+TEST_CASE("nullable does not break inheritance-based polymorphism",
+          "[InfoUtils][nullable][nullability]") {
+    struct Foo {
+        virtual int make() = 0;
+        virtual ~Foo() = default;
+    };
 
-        CHECK(f(&bar) == 1);
-    }
+    struct Bar : Foo {
+    private:
+        int
+        make() override {
+            return 1;
+        }
+    } bar;
 
-    SECTION("Hash differentiates nullables as pointers") {
-        std::hash<nullable<int*>> h{};
-        int a = 4, b = 2;
-        nullable ptra{&a}, ptrb{&b};
+    auto f = [](nullable<Foo*> ptr) {
+        return ptr->make();
+    };
 
-        CHECK(h(ptra) != h(ptrb));
-    }
+    CHECK(f(&bar) == 1);
+}
 
-    SECTION("Hash is consistent") { // or whatever it is called
-        std::hash<nullable<int*>> h{};
-        int a = 42;
-        nullable ap{&a};
+TEST_CASE("std::hash differentiates nullables as pointers",
+          "[InfoUtils][nullable][nullability]") {
+    std::hash<nullable<int*>> h{};
+    int a = 4, b = 2;
+    nullable ptra{&a}, ptrb{&b};
 
-        CHECK(h(ap) == h(ap));
-    }
+    CHECK(h(ptra) != h(ptrb));
+}
 
-    SECTION("Nullptr hashes are equal") {
-        std::hash<nullable<int*>> h{};
-        nullable<int*> ptra{nullptr};
-        nullable<int*> ptrb{nullptr};
+TEST_CASE("std::hash of nullable is deterministic",
+          "[InfoUtils][nullable][nullability]") {
+    std::hash<nullable<int*>> h{};
+    int a = 42;
+    nullable ap{&a};
 
-        CHECK(h(ptra) == h(ptrb));
-        CHECK(h(ptra) == h(nullptr));
-    }
+    CHECK(h(ap) == h(ap));
+}
+
+TEST_CASE("nullable's nullptr hashes are equal",
+          "[InfoUtils][nullable][nullability]") {
+    std::hash<nullable<int*>> h{};
+    nullable<int*> ptra{nullptr};
+    nullable<int*> ptrb{nullptr};
+
+    CHECK(h(ptra) == h(ptrb));
+    CHECK(h(ptra) == h(nullptr));
 }

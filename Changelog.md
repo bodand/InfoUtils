@@ -6,6 +6,24 @@ may have a 'Developer notes' subheader defining notes by the developer publishin
 developers (or their older selves), which are more implementation detail oriented. Patch updates may not include the
 whole set of subheaders at the developer's discretion.
 
+## VERSION 1.8.0 - Freya
+
+### Added:
+
+- `info::queue<T>` A thread-safe queue implementation.
+
+### Changed
+
+- The tests' structure has been redesigned
+
+### Developer Notes:
+
+Surprisingly, can't think of a god(dess) to connect to multi-threading nor queues so Freya, the goddess of fertility is
+used as managing many children is as complex as a multi-threaded container.
+
+Note that the tests have been completely restructured into a flat design. This is how Catch now more in-line with the
+other `Info*` projects.
+
 ## VERSION 1.7.0 - Antevora
 
 ### Added:

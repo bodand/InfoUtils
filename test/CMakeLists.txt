@@ -42,7 +42,7 @@ add_executable(${${TESTED_PROJECT_NAME}_TARGET}_test
                nonnull.test.cpp
                nullable.test.cpp
                future.test.cpp
-               )
+               queue.test.cpp)
 
 target_link_libraries(${${TESTED_PROJECT_NAME}_TARGET}_test
                       ${${TESTED_PROJECT_NAME}_NAMESPACE}

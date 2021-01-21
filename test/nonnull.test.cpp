@@ -35,84 +35,91 @@
 
 using namespace info;
 
-TEST_CASE("Nonnull tests", "[nonnull][nullability]") {
-    SECTION("Accepts valid pointer") {
-        int i = 42;
-        nonnull non{&i};
+TEST_CASE("nonnull accepts valid pointer",
+          "[InfoUtils][nonnull][nullability]") {
+    int i = 42;
+    nonnull non{&i};
 
-        CHECK(non == &i);
-    }
+    CHECK(non == &i);
+}
 
-    SECTION("Accepts smart pointer") {
-        auto ip = std::make_shared<int>(42);
-        info::nonnull<int*> non{ip};
+TEST_CASE("nonnull accepts shared_ptr smart pointer",
+          "[InfoUtils][nonnull][nullability]") {
+    auto ip = std::make_shared<int>(42);
+    info::nonnull<int*> non{ip};
 
-        CHECK(non == ip.get());
-    }
+    CHECK(non == ip.get());
+}
 
-    SECTION("Returns true when converted to bool") {
-        int i = 42;
-        info::nonnull non{&i};
+TEST_CASE("nonnull always converts to true",
+          "[InfoUtils][nonnull][nullability]") {
+    int i = 42;
+    info::nonnull non{&i};
 
-        CHECK(non);
-    }
+    CHECK(non);
+}
 
-    SECTION("Does not modify pointed at value") {
-        int i = 42;
-        info::nonnull non{&i};
+TEST_CASE("nonnull does not modify pointed at value",
+          "[InfoUtils][nonnull][nullability]") {
+    int i = 42;
+    info::nonnull non{&i};
 
-        CHECK(*non == 42);
-    }
+    CHECK(i == 42);
+    CHECK(*non == 42);
+}
 
-    SECTION("Allows pointer member-access") {
-        struct Foo {
-            int a;
-        } foo{42};
-        info::nonnull non{&foo};
+TEST_CASE("nonnull allows dereference-access operator",
+          "[InfoUtils][nonnull][nullability]") {
+    struct Foo {
+        int a;
+    } foo{42};
+    info::nonnull non{&foo};
 
-        CHECK(non->a == 42);
-    }
+    CHECK(non->a == 42);
+}
 
-    SECTION("Can be passed as raw-pointer") {
-        auto f = [](info::nonnull<int*> ptr) {
-          return ptr.get();
-        };
-        int i = 42;
+TEST_CASE("nonnull can be passed from raw-pointer") {
+    auto f = [](info::nonnull<int*> ptr) {
+        return ptr.get();
+    };
+    int i = 42;
 
-        CHECK(*f(&i) == i);
-    }
+    CHECK(*f(&i) == i);
+}
 
-    SECTION("Does not break inheritance-based polymorphism") {
-        struct Foo {
-            virtual int make() = 0;
-            virtual ~Foo() = default;
-        };
+TEST_CASE("nonnull does not break inheritance-based polymorphism") {
+    struct Foo {
+        virtual int make() = 0;
+        virtual ~Foo() = default;
+    };
 
-        struct Bar : Foo {
-        private:
-            int make() override { return 1; }
-        } bar;
+    struct Bar : Foo {
+    private:
+        int
+        make() override {
+            return 1;
+        }
+    } bar;
 
-        auto f = [](info::nonnull<Foo*> ptr) {
-          return ptr->make();
-        };
+    auto f = [](info::nonnull<Foo*> ptr) {
+        return ptr->make();
+    };
 
-        CHECK(f(&bar) == 1);
-    }
+    CHECK(f(&bar) == 1);
+}
 
-    SECTION("Hash differentiates nonnulls as pointers"){
-        std::hash<info::nonnull<int*>> h{};
-        int a = 4, b = 2;
-        info::nonnull nona{&a}, nonb{&b};
+TEST_CASE("std::hash differentiates nonnull as pointers") {
+    std::hash<info::nonnull<int*>> h{};
+    int a = 4, b = 2;
+    info::nonnull nona{&a}, nonb{&b};
 
-        CHECK(h(nona) != h(nonb));
-    }
+    CHECK(h(nona) != h(nonb));
+}
 
-    SECTION("Hash is consistent") { // or whatever it is called
-        std::hash<info::nonnull<int*>> h{};
-        int a = 42;
-        info::nonnull ap{&a};
+TEST_CASE("std::hash on nonnull is deterministic") {
+    std::hash<info::nonnull<int*>> h{};
+    int a = 42;
+    info::nonnull ap{&a};
 
-        CHECK(h(ap) == h(ap));
-    }
+    CHECK(h(ap) == h(ap));
 }

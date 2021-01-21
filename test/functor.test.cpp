@@ -36,35 +36,39 @@
 using namespace info;
 
 struct func {
-    int operator()(int, char) {
+    int
+    operator()(int, char) {
         return ++i;
     }
 
     int i{0};
 };
 
-int plain_fun(int) {
+[[gnu::const]] // aka pls don't warn for tests
+int
+plain_fun(int) {
     return 1;
 }
 
-TEST_CASE("Functor tests", "[functor]") {
-    SECTION("functor is callable") {
-        functor<int(int, char)> fun{func{}};
+TEST_CASE("functor is callable",
+          "[InfoUtils][functor]") {
+    functor<int(int, char)> fun{func{}};
 
-        CHECK(fun(1, '?') == 1);
-    }
+    CHECK(fun(1, '?') == 1);
+}
 
-    SECTION("functor is callable with plain function") {
-        functor<int(int)> fun{plain_fun};
+TEST_CASE("functor is callable with plain function",
+          "[InfoUtils][functor]") {
+    functor<int(int)> fun{plain_fun};
 
-        CHECK(fun(1) == 1);
-    }
+    CHECK(fun(1) == 1);
+}
 
-    SECTION("functor keeps the state of the functor") {
-        functor<int(int, char)> fun{func{}};
+TEST_CASE("functor keeps the state of the functor",
+          "[InfoUtils][functor]") {
+    functor<int(int, char)> fun{func{}};
 
-        REQUIRE(fun(1, '?') == 1);
-        REQUIRE(fun(1, '?') == 2);
-        REQUIRE(fun(1, '?') == 3);
-    }
+    REQUIRE(fun(1, '?') == 1);
+    REQUIRE(fun(1, '?') == 2);
+    REQUIRE(fun(1, '?') == 3);
 }

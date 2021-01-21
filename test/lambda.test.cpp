@@ -37,37 +37,37 @@
 #include <info/lambda.hpp>
 using namespace info;
 
-TEST_CASE("info::lambda tests", "[lambda]") {
-    SECTION("lambda allows recursion") {
-        int call_count = 0;
-        auto sut = lambda([&call_count](auto self, int call_times) -> void {
-          ++call_count;
+TEST_CASE("lambda allows recursion",
+          "[InfoUtils][lambda]") {
+    int call_count = 0;
+    auto sut = lambda([&call_count](auto self, int call_times) -> void {
+        ++call_count;
 
-          if (call_times != 0)
-              self(call_times - 1);
-        });
+        if (call_times != 0)
+            self(call_times - 1);
+    });
 
-        sut(4);
+    sut(4);
 
-        CHECK(call_count == 5);
-    }
+    CHECK(call_count == 5);
+}
 
-    SECTION("lambda doesn't disturb return types and parameters") {
-        auto sut = lambda([](auto self, auto n) {
-          if (n == 0)
-              return std::vector<decltype(n)>{n};
+TEST_CASE("lambda doesn't disturb return types and parameters",
+          "[InfoUtils][lambda]") {
+    auto sut = lambda([](auto self, auto n) {
+        if (n == 0)
+            return std::vector<decltype(n)>{n};
 
-          auto ret = self(n - 1);
-          ret.push_back(n);
-          return ret;
-        });
-        unsigned n = 6;
+        auto ret = self(n - 1);
+        ret.push_back(n);
+        return ret;
+    });
+    unsigned n = 6;
 
-        auto got = sut(n);
+    auto got = sut(n);
 
-        std::vector<unsigned> exp(n + 1);
-        std::iota(exp.begin(), exp.end(), 0);
+    std::vector<unsigned> exp(n + 1);
+    std::iota(exp.begin(), exp.end(), 0);
 
-        CHECK_THAT(got, Catch::Equals(exp));
-    }
+    CHECK_THAT(got, Catch::Equals(exp));
 }

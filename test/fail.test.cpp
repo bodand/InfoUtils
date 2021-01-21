@@ -37,20 +37,20 @@ using namespace info;
 
 struct foo {
     template<class T = void>
-    int f() {
+    int
+    f() {
         static_assert(fail_v<T>, "Usage is forbidden");
         return 1;
     }
 
-    int b() {
+    int
+    b() {
         return 0;
     }
 };
 
-TEST_CASE("Fail tests", "[fail]") {
+TEST_CASE("Fail should not fail compilation unless instantiated",
+          "[InfoUtils][fail]") {
     foo f;
-
-    SECTION("Fail should not fail compilation unless instantiated") {
-        REQUIRE(f.b() == 0); // any alibi check works
-    }
+    REQUIRE(f.b() == 0); // any alibi check works
 }
