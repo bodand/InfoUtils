@@ -184,7 +184,7 @@ TEST_CASE("expected's apply operator applies function on expected value",
 
     auto newexp = expe(f);
 
-    CHECK(static_cast<bool>(newexp) == static_cast<bool>(exp));
+    CHECK(static_cast<bool>(newexp) == static_cast<bool>(expe));
     CHECK(*newexp == f(*expe));
 }
 

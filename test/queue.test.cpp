@@ -100,16 +100,16 @@ TEST_CASE("multiple producers and consumers can work on one queue") {
     t2.join();
 }
 
-TEST_CASE("waiting will return nullptr when the queue dies") {
+TEST_CASE("waiting will return nullptr when the queue end()s") {
     std::thread t;
-    {
-        info::queue<int> q;
-        t = std::thread([&q] {
-            auto p = q.await_pop();
-            CHECK(p == nullptr);
-        });
-    }
 
+    info::queue<int> q;
+    t = std::thread([&q] {
+        auto p = q.await_pop();
+        CHECK(p == nullptr);
+    });
+
+    q.end();
     t.join();
 }
 
@@ -132,4 +132,20 @@ TEST_CASE("queue can handle a throwing constructor gracefully") {
 
     CHECK_THROWS_WITH(q.push(42), Catch::Equals("throwing_foo"));
     CHECK(q.try_pop() == nullptr);
+}
+
+
+TEST_CASE("queue can be ended before destruction") {
+    info::queue<int> q;
+    std::thread t([&q]() {
+        CHECK(q.await_pop() == nullptr);
+    });
+
+    q.end();
+    t.join();
+}
+
+TEST_CASE("ended queues get destructed peacefully") {
+    info::queue<int> q;
+    q.end();
 }

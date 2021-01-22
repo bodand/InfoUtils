@@ -53,6 +53,14 @@ namespace info {
             return std::make_unique<value_type>(std::move(head->_value));
         }
 
+        void
+        end() {
+            if (!_end) {
+                _end = true;
+                _cv.notify_all();
+            }
+        }
+
         queue()
              : _head(std::make_unique<node>()),
                _tail(_head.get()),
@@ -62,11 +70,6 @@ namespace info {
                _cv() { }
         queue(const queue& cp) = delete;
         queue& operator=(const queue& cp) = delete;
-
-        ~queue() noexcept {
-            _end = true;
-            _cv.notify_all();
-        }
 
     private:
         struct node {
