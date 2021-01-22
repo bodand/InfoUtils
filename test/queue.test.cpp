@@ -31,17 +31,20 @@ TEST_CASE("queue can be popped from") {
 
 TEST_CASE("queue can be pushed into from multiple threads") {
     info::queue<int> q;
-    std::thread([&q] {
+    std::thread p1([&q] {
         std::this_thread::sleep_for(50ms);
         q.push(42);
-    }).detach();
-    std::thread([&q] {
+    });
+    std::thread p2([&q] {
         std::this_thread::sleep_for(60ms);
         q.push(42);
-    }).detach();
+    });
 
     CHECK(*q.await_pop() == 42);
     CHECK(*q.await_pop() == 42);
+    q.end();
+    p1.join();
+    p2.join();
 }
 
 TEST_CASE("queue can be popped from multiple threads") {
@@ -106,14 +109,13 @@ TEST_CASE("multiple producers and consumers can work on one queue") {
 }
 
 TEST_CASE("waiting will return nullptr when the queue end()s") {
-    std::thread t;
     std::atomic<int*> r = reinterpret_cast<int*>(0xDEADBEEF);
     // this is for testing purposes, because yes
     // DEREFERENCING `r' IN THIS FUNCTION IS A SUREFIRE WAY TO KILL THYSELF
     // DO NOT DO IT. SEEK HELP
 
     info::queue<int> q;
-    t = std::thread([&q, &r] {
+    std::thread t([&q, &r] {
         auto p = q.await_pop();
         r = p.get();
     });
