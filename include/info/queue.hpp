@@ -8,6 +8,7 @@
 #include <condition_variable>
 #include <memory>
 #include <mutex>
+#include <atomic>
 
 #include <info/_macros.hpp>
 
@@ -135,7 +136,7 @@ namespace info {
 
         std::unique_ptr<node> _head;
         node* _tail;
-        bool _end;
+        std::atomic<bool> _end;
         std::mutex _m_head;
         std::mutex _m_tail;
         std::condition_variable _cv;

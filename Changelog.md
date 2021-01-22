@@ -6,6 +6,12 @@ may have a 'Developer notes' subheader defining notes by the developer publishin
 developers (or their older selves), which are more implementation detail oriented. Patch updates may not include the
 whole set of subheaders at the developer's discretion.
 
+## VERSION 1.8.1 - Freya-2
+
+### Changed:
+
+- `info::queue<T>` is now actually thread-safe
+
 ## VERSION 1.8.0 - Freya
 
 ### Added:
