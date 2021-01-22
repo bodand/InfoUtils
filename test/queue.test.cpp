@@ -7,6 +7,7 @@
 
 #include <info/queue.hpp>
 
+#include <atomic>
 #include <chrono>
 #include <thread>
 using namespace std::literals;
@@ -45,20 +46,18 @@ TEST_CASE("queue can be pushed into from multiple threads") {
 
 TEST_CASE("queue can be popped from multiple threads") {
     info::queue<int> q;
-    std::thread t1([&q]() mutable {
+    std::atomic<int> r1 = 0;
+    std::atomic<int> r2 = 0;
+    std::thread t1([&q, &r1]() mutable {
         auto p = q.await_pop();
         if (p != nullptr) {
-            CHECK(*p == 42);
-        } else {
-            FAIL_CHECK("shit on thread#1");
+            r1 = *p;
         }
     });
-    std::thread t2([&q]() mutable {
+    std::thread t2([&q, &r2]() mutable {
         auto p = q.await_pop();
         if (p != nullptr) {
-            CHECK(*p == 42);
-        } else {
-            FAIL_CHECK("shit on thread#2");
+            r2 = *p;
         }
     });
 
@@ -66,51 +65,63 @@ TEST_CASE("queue can be popped from multiple threads") {
     q.push(42);
     t1.join();
     t2.join();
+
+    CHECK(r1 == 42);
+    CHECK(r2 == 42);
 }
 
 TEST_CASE("multiple producers and consumers can work on one queue") {
     info::queue<int> q;
-    std::thread t1([&q]() mutable {
+    std::atomic<int> r1 = 0;
+    std::atomic<int> r2 = 0;
+    std::thread c1([&q, &r1]() mutable {
         auto p = q.await_pop();
         if (p != nullptr) {
-            CHECK(*p == 42);
-        } else {
-            FAIL_CHECK("shit on thread#1");
+            r1 = *p;
         }
     });
-    std::thread t2([&q]() mutable {
+    std::thread c2([&q, &r2]() mutable {
         auto p = q.await_pop();
         if (p != nullptr) {
-            CHECK(*p == 42);
-        } else {
-            FAIL_CHECK("shit on thread#2");
+            r2 = *p;
         }
     });
 
-    std::thread([&q] {
+    std::thread p1([&q] {
         std::this_thread::sleep_for(50ms);
         q.push(42);
-    }).detach();
-    std::thread([&q] {
+    });
+    std::thread p2([&q] {
         std::this_thread::sleep_for(60ms);
         q.push(42);
-    }).detach();
+    });
 
-    t1.join();
-    t2.join();
+    c1.join();
+    c2.join();
+    p1.join(); // these should happen immediately at this point
+    p2.join();
+
+    CHECK(r1 == 42);
+    CHECK(r2 == 42);
 }
 
 TEST_CASE("waiting will return nullptr when the queue end()s") {
     std::thread t;
+    std::atomic<int*> r = reinterpret_cast<int*>(0xDEADBEEF);
+    // this is for testing purposes, because yes
+    // DEREFERENCING `r' IN THIS FUNCTION IS A SUREFIRE WAY TO KILL THYSELF
+    // DO NOT DO IT. SEEK HELP
 
     info::queue<int> q;
-    t = std::thread([&q] {
+    t = std::thread([&q, &r] {
         auto p = q.await_pop();
-        CHECK(p == nullptr);
+        r = p.get();
     });
 
     q.end();
     t.join();
+
+    CHECK(r == nullptr);
 }
 
 TEST_CASE("queue can handle non-copyable types") {
@@ -137,15 +148,34 @@ TEST_CASE("queue can handle a throwing constructor gracefully") {
 
 TEST_CASE("queue can be ended before destruction") {
     info::queue<int> q;
-    std::thread t([&q]() {
-        CHECK(q.await_pop() == nullptr);
+    std::atomic<int*> r = reinterpret_cast<int*>(0xDEADBEEF);
+    // DO NOT DEREFERENCE `r' IN THIS FUNCTION
+
+    std::thread t([&q, &r]() {
+        r = q.await_pop().get();
     });
 
     q.end();
     t.join();
+
+    CHECK(r == nullptr);
 }
 
 TEST_CASE("ended queues get destructed peacefully") {
     info::queue<int> q;
     q.end();
+}
+
+TEST_CASE("ended queues get destructed peacefully when ending caused threads to die") {
+    info::queue<int> q;
+    std::thread t1([&q]() {
+        (void) q.await_pop();
+    });
+    std::thread t2([&q]() {
+        (void) q.await_pop();
+    });
+
+    q.end();
+    t1.join();
+    t2.join();
 }
