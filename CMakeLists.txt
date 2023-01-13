@@ -37,6 +37,7 @@ project(InfoUtils
         LANGUAGES CXX)
 
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(${PROJECT_NAME}_MAIN On)
@@ -79,9 +80,6 @@ set_target_properties(${${PROJECT_NAME}_TARGET}
 target_compile_features(${${PROJECT_NAME}_TARGET} INTERFACE
                         cxx_std_17)
 
-## Dependencies
-include(dependencies-${PROJECT_NAME})
-
 ## Warnings
 include(warnings)
 
@@ -113,7 +111,7 @@ install(TARGETS "${${PROJECT_NAME}_TARGET}"
 # headers
 install(DIRECTORY
         "${${PROJECT_NAME}_HEADER_PATH}"
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/info"
         FILES_MATCHING PATTERN "*.hpp"
         )
 
